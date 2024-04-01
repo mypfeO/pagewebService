@@ -1,0 +1,13 @@
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\Domaine\bin\Debug\net8.0\Domaine.deps.json
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\Domaine\bin\Debug\net8.0\Domaine.dll
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\Domaine\bin\Debug\net8.0\Domaine.pdb
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\Domaine\obj\Debug\net8.0\Domaine.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\Domaine\obj\Debug\net8.0\Domaine.AssemblyInfoInputs.cache
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\Domaine\obj\Debug\net8.0\Domaine.AssemblyInfo.cs
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\Domaine\obj\Debug\net8.0\Domaine.csproj.CoreCompileInputs.cache
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\Domaine\obj\Debug\net8.0\Domaine.sourcelink.json
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\Domaine\obj\Debug\net8.0\Domaine.dll
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\Domaine\obj\Debug\net8.0\refint\Domaine.dll
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\Domaine\obj\Debug\net8.0\Domaine.pdb
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\Domaine\obj\Debug\net8.0\ref\Domaine.dll
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\Domaine\obj\Debug\net8.0\Domaine.csproj.AssemblyReference.cache
