@@ -7,10 +7,12 @@ using Application.PageWeb.Commands;
 using AutoMapper;
 using Domaine.Entities;
 using FluentResults;
+using FluentValidation.Results;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using MongoDB.Bson;
+using System.ComponentModel.DataAnnotations;
 
 namespace ServiceWebPage.Controllers
 {
@@ -27,72 +29,78 @@ namespace ServiceWebPage.Controllers
             _mapper = mapper;
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] PageWebModel model, CancellationToken cancellationToken)
+        [HttpPost("createWebPage")]
+        [ProducesResponseType(typeof(IDictionary<string, string>), StatusCodes.Status200OK)] 
+        [ProducesResponseType(typeof(IDictionary<string, string>), StatusCodes.Status400BadRequest)] 
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)] 
+        public async Task<IActionResult> CreateWebPage([FromBody] PageWebModel model, CancellationToken cancellationToken)
         {
-                var result = await _mediator.Send(new PageWebCreateCommand { Name = model.Name, users = model.Users }, cancellationToken);
+            var validationResult =  await new PageWebModelValidator().ValidateAsync(model, cancellationToken);
 
-                if (result.IsSuccess)
-                {
-                    return Ok(new { Token = result.Value });
-                }
-                else
-                {
-                    return BadRequest(result.Errors);
-                }
-          
-        }
-        [HttpPost("createFormulaire")]
-        [ProducesResponseType(typeof(string), 200)]
-        [ProducesResponseType(typeof(string), 500)]
-        public async Task<IActionResult> CreateFormulaire([FromBody] FormulaireObjectModel formulaireModel, CancellationToken cancellationToken)
-        {
-            var validationResult = await new FormulaireObjectModelValidator().ValidateAsync(formulaireModel);
-            if (validationResult.IsValid)
+            if (!validationResult.IsValid)
             {
-                var createFormulaireCommand = new CreateFormulaireCommand
-                {
-                    SiteWebId = formulaireModel.SiteWebId,
-                    Formulaire = formulaireModel.Formulaire
-                };
+                var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { Errors = errors });
+            }
 
-                var result = await _mediator.Send(createFormulaireCommand, cancellationToken);
+            var result = await _mediator.Send(new PageWebCreateCommand { Name = model.Name, users = model.Users }, cancellationToken);
 
-                if (result.IsSuccess)
-                {
-                    return Ok("Le formulaire a été créé avec succès.");
-                }
-                else
-                {
-                    // Gérer les erreurs spécifiques ici
-                    if (result.Errors.Any(error => error is FluentValidation.ValidationException))
-                    {
-                        var validationErrors = result.Errors
-                            .Where(error => error is FluentValidation.ValidationException)
-                            .SelectMany(error => ((FluentValidation.ValidationException)error).Errors)
-                            .Select(error => error.ErrorMessage);
-
-                        return BadRequest("Une erreur s'est produite lors de la création du formulaire. " + string.Join(", ", validationErrors));
-                    }
-                    else
-                    {
-                        // Gérer les autres erreurs génériques ici
-                        var errorResult = EroorsHandler.HandleGenericError("Une erreur s'est produite lors de la création du formulaire.");
-                        return BadRequest(new { Message = errorResult.Errors.FirstOrDefault()?.Message });
-                    }
-                }
+            if (result.IsSuccess)
+            {
+                return Ok(new { Message = result.Value});
             }
             else
             {
-                var validationErrors = validationResult.Errors.Select(error => error.ErrorMessage);
-                return BadRequest("Erreurs de validation : " + string.Join(", ", validationErrors));
+                var errorMessages = result.Errors.Select(e => e.Message);
+                return BadRequest(new { Errors = errorMessages });
             }
         }
-
-        [HttpGet("getFormsBySiteId")]
-        public async Task<IActionResult> GetFormsBySiteId(string siteWebId, CancellationToken cancellationToken)
+        [HttpPost("createFormulaire")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)] 
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)] 
+        public async Task<IActionResult> CreateFormulaire([FromBody] FormulaireObjectModel formulaireModel, CancellationToken cancellationToken)
         {
-            var query = new GetFormsBySiteIDQuery { Id = siteWebId };
+            var validator = new FormulaireObjectModelValidator();
+            var validationResult = await validator.ValidateAsync(formulaireModel, cancellationToken);
+            if (!validationResult.IsValid)
+            {
+
+                var validationErrors = validationResult.Errors.Select(e => e.ErrorMessage);
+                return BadRequest(new { Errors = validationErrors });
+            }
+
+            var createFormulaireCommand = new CreateFormulaireCommand
+            {
+                SiteWebId = formulaireModel.SiteWebId,
+                Formulaire = formulaireModel.Formulaire,
+                ExcelFileLink = formulaireModel.ExcelFileLink
+            };
+
+            var result = await _mediator.Send(createFormulaireCommand, cancellationToken);
+
+            if (result.IsSuccess)
+            {
+                 var formUrl = $"{Request.Scheme}://{Request.Host}/forms/{formulaireModel.SiteWebId}/{result.Value}";
+                return Ok(new { Message = "Form created successfully.", FormUrl = formUrl });
+            }
+            else
+            {
+               
+                var errorMessages = result.Errors.Select(e => e.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Errors = errorMessages });
+            }
+        }
+        [HttpGet("{siteWebId}/{formId}")]
+        [ProducesResponseType(typeof(FormulaireObjectModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetForm(string siteWebId, string formId, CancellationToken cancellationToken)
+        {
+            var query = new GetFormQuery { SiteWebId = siteWebId, FormId = formId };
+
+            // La validation peut être faite ici si nécessaire, ou assurée par des Data Annotations sur GetFormQuery
 
             var result = await _mediator.Send(query, cancellationToken);
 
@@ -102,7 +110,15 @@ namespace ServiceWebPage.Controllers
             }
             else
             {
-                return BadRequest(new { Errors = result.Errors });
+                if (result.Errors.Any(e => e.Message.Contains("not found")))
+                {
+                    return NotFound("The requested form was not found.");
+                }
+                else
+                {
+                    // Log des erreurs pour un diagnostic plus profond peut être fait ici
+                    return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+                }
             }
         }
 
@@ -120,9 +136,9 @@ namespace ServiceWebPage.Controllers
             if (result.IsFailed)
                 return BadRequest(result.Errors.FirstOrDefault()?.Message);
 
-            return Ok();
+            return Ok(new {Message = result.Value});
         }
-
+       
 
 
     }

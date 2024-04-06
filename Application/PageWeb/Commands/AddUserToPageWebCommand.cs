@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Application.PageWeb.Commands
 {
-    public class AddUserToPageWebCommand : IRequest<Result>
+    public class AddUserToPageWebCommand : IRequest<Result<string>>
     {
         public ObjectId PageWebId { get; set; }
         public ObjectId UserId { get; set; }

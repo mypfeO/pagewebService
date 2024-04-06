@@ -9,10 +9,7 @@ namespace Domaine.Entities
 {
     public class FormulaireSummaryDTO
     {
-        public string FormulaireId { get; set; }
-        public string Title { get; set; }
+        public string? FormulaireId { get; set; }
+        public string? Title { get; set; }
     }
-
-
-
 }

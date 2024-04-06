@@ -15,7 +15,7 @@ namespace Application.Models
     {
         public string SiteWebId { get; set; } 
         public Formulaire Formulaire { get; set; }
-
+        public string ExcelFileLink { get; set; }
 
     }
 

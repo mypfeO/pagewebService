@@ -15,6 +15,7 @@ namespace Application.formulaire.Commands
     {
         public string SiteWebId { get; set; }
         public Formulaire Formulaire { get; set; }
+        public string ExcelFileLink { get; set; }   
     }
 
     // Gestionnaire

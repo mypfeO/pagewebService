@@ -1,38 +1,46 @@
-﻿using Domaine.Entities;
+﻿using Amazon.Runtime.Internal;
+using Domaine.Entities;
 using Domaine.Reposotires;
 using FluentResults;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
     public class MongoRepositoryFormulaire : IRepositoryFormulaire
     {
         private readonly IMongoCollection<FormulaireObjectDTO> _formulaireCollection;
+        private readonly IMongoCollection<FormulaireObjectSubmitedDTO> _formulairesCollection;
 
         public MongoRepositoryFormulaire(IMongoDatabase database)
         {
             _formulaireCollection = database.GetCollection<FormulaireObjectDTO>("formulaires");
+            _formulairesCollection = database.GetCollection<FormulaireObjectSubmitedDTO>("FormulairesSubmited");
         }
 
-        public async Task<Result> AddFormulaireAsync(FormulaireObjectDTO formulaire, CancellationToken cancellationToken)
+        public async Task<Result<string>> AddFormulaireAsync(FormulaireObjectDTO formulaire, CancellationToken cancellationToken)
         {
             try
             {
                 await _formulaireCollection.InsertOneAsync(formulaire, null, cancellationToken);
-                return Result.Ok();
+                return Result.Ok(formulaire._id.ToString()); 
             }
             catch (Exception ex)
             {
-                return Result.Fail($"Erreur lors de l'ajout du formulaire : {ex.Message}");
+                return Result.Fail<string>($"Error adding form: {ex.Message}");
             }
         }
+
+        public async Task<FormulaireObjectDTO> GetFormAsync(string siteWebId, string formId, CancellationToken cancellationToken)
+        {
+            var filter = Builders<FormulaireObjectDTO>.Filter.And(
+                Builders<FormulaireObjectDTO>.Filter.Eq(f => f.SiteWebId, new ObjectId(siteWebId)),
+                Builders<FormulaireObjectDTO>.Filter.Eq(f => f._id, new ObjectId(formId))
+            );
+
+            return await _formulaireCollection.Find(filter).FirstOrDefaultAsync(cancellationToken);
+        }
+
 
         public async Task<List<FormulaireSummaryDTO>> GetFormsBySiteIdAsync(string siteWebId, CancellationToken cancellationToken)
         {
@@ -63,6 +71,20 @@ namespace Infrastructure.Repositories
             var filter = Builders<FormulaireObjectDTO>.Filter.Eq(x => x._id, objectId);
 
             return await _formulaireCollection.Find(filter).FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public async Task<Result<string>> SaveFormAsync(FormulaireObjectSubmitedDTO formulaireSubmited, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _formulairesCollection.InsertOneAsync(formulaireSubmited, null, cancellationToken);
+                return Result.Ok("form Submited"); 
+            }
+            catch (Exception ex)
+            {
+                // Using the generic error handler to wrap the exception message
+                return Result.Fail<string>($"An error occurred while saving the form: {ex.Message}");
+            }
         }
     }
 }

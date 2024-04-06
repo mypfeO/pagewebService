@@ -40,18 +40,19 @@ namespace Application.formulaire.Handlers.Commands
                 var formulaireModel = new FormulaireObjectDTO
                 {
                     SiteWebId = siteWebObjectId,
-                    Formulaire = formulaireDTO
+                    Formulaire = formulaireDTO,
+                    ExcelFileLink = request.ExcelFileLink
                 };
 
                 var result = await _repositoryFormulaire.AddFormulaireAsync(formulaireModel, cancellationToken);
 
                 if (result.IsSuccess)
                 {
-                    return Result.Ok("Le formulaire a été créé avec succès.");
+                    return Result.Ok(formulaireModel._id.ToString());
                 }
                 else
                 {
-                    return EroorsHandler.HandleGenericError($"Erreur lors de la création du formulaire. Raison : {result.Errors.First().Message}");
+                    return EroorsHandler.HandleGenericError($"Error: {result.Errors.First().Message}");
                 }
             }
             catch (Exception ex)

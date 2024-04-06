@@ -14,8 +14,11 @@ namespace Application.Common.Mappings
     {
         public FormulaireMappingProfile()
         {
+            
             CreateMap<FormulaireObjectDTO, FormulaireObjectModel>()
-                .ForMember(dest => dest.SiteWebId, opt => opt.MapFrom(src => src.SiteWebId.ToString()));
+                .ForMember(dest => dest.SiteWebId, opt => opt.MapFrom(src => src.SiteWebId.ToString()))
+                .ForMember(dest => dest.ExcelFileLink, opt => opt.MapFrom(src => src.ExcelFileLink.ToString()));
+
 
             CreateMap<Formulaire, FormulaireDTO>()
                 .ForMember(dest => dest.Head, opt => opt.MapFrom(src => src.Head))

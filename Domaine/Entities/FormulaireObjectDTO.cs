@@ -12,6 +12,7 @@ namespace Domaine.Entities
         public ObjectId _id { get; set; }
         public ObjectId SiteWebId { get; set; } 
         public FormulaireDTO? Formulaire { get; set; }
+        public string? ExcelFileLink { get; set; }
     }
     
     public class FormulaireDTO
@@ -19,10 +20,11 @@ namespace Domaine.Entities
         public HeadDTO? Head { get; set; }
         public List<BodyItemDTO> Body { get; set; } = new List<BodyItemDTO>();
         public FooterDTO? Footer { get; set; }
+        
     }
 
           public class HeadDTO
-    {
+            {
            public string Title { get; set; } = string.Empty;
           }
 

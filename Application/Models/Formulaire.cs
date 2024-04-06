@@ -14,6 +14,7 @@ namespace Application.Models
         public Head? Head { get; set; }
         public List<BodyItem> Body { get; set; } = new List<BodyItem>();
         public Footer? Footer { get; set; }
+       
     }
 
     public class Head : IMapFrom<HeadDTO>

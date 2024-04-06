@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Application.PageWeb.Handlers
 {
-    public class AddUserToPageWebCommandHandler : IRequestHandler<AddUserToPageWebCommand, Result>
+    public class AddUserToPageWebCommandHandler : IRequestHandler<AddUserToPageWebCommand, Result<string>>
     {
         private readonly IRepositoryPageWeb _repositoryPageWeb;
 
@@ -19,7 +19,7 @@ namespace Application.PageWeb.Handlers
             _repositoryPageWeb = repositoryPageWeb;
         }
 
-        public async Task<Result> Handle(AddUserToPageWebCommand request, CancellationToken cancellationToken)
+        public async Task<Result<string>> Handle(AddUserToPageWebCommand request, CancellationToken cancellationToken)
         {
             try
             {
@@ -30,13 +30,13 @@ namespace Application.PageWeb.Handlers
                     return Result.Fail($"PageWeb with ID {request.PageWebId} not found.");
                 }
 
-                // Add the user ID to the list of users
+                
                 pageWeb.Users.Add(request.UserId);
 
                 // Save the updated PageWeb object
                 await _repositoryPageWeb.UpdatePageWebAsync(pageWeb, cancellationToken);
 
-                return Result.Ok();
+                return Result.Ok("bien ajouter user");
             }
             catch (Exception ex)
             {

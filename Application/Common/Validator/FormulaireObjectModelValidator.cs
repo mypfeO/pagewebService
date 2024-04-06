@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using Domaine.Entities;
 using FluentValidation;
 using FluentValidation.Validators;
-using FluentValidation;
 using Application.Models;
+using Application.formulaire.Queries;
+using Application.formulaire.Commands;
+using MongoDB.Bson;
 
 namespace Application.Common.Validator
 {
@@ -21,6 +23,11 @@ namespace Application.Common.Validator
 
             RuleFor(x => x.Formulaire)
                 .NotNull().WithMessage("Formulaire ne peut pas être null.");
+
+            RuleFor(x => x.ExcelFileLink)
+          .NotEmpty().WithMessage("Le lien du fichier Excel ne peut pas être vide.")
+          .Must(Link => Uri.IsWellFormedUriString(Link, UriKind.Absolute)).WithMessage("Le lien du fichier Excel n'est pas un URI valide.");
+
         }
     }
 
@@ -28,7 +35,7 @@ namespace Application.Common.Validator
     {
         public FormulaireDTOValidator()
         {
-            RuleFor(x => x.Head)
+            _ = RuleFor(x => x.Head)
                 .NotNull().WithMessage("Le champ Head ne peut pas être null.")
                 .SetValidator(new HeadDTOValidator());
 
@@ -39,6 +46,7 @@ namespace Application.Common.Validator
             RuleFor(x => x.Footer)
                 .NotNull().WithMessage("Le champ Footer ne peut pas être null.")
                 .SetValidator(new FooterDTOValidator());
+          
         }
     }
 
@@ -76,4 +84,42 @@ namespace Application.Common.Validator
                 .MaximumLength(100).WithMessage("Le titre ne peut pas dépasser 100 caractères.");
         }
     }
+
+    public class GetFormQueryValidator : AbstractValidator<GetFormQuery>
+    {
+        public GetFormQueryValidator()
+        {
+            RuleFor(query => query.SiteWebId).NotEmpty().WithMessage("SiteWebId must be provided.");
+            RuleFor(query => query.FormId).NotEmpty().WithMessage("FormId must be provided.");
+        }
+    }
+    public class PageWebModelValidator : AbstractValidator<PageWebModel>
+    {
+        public PageWebModelValidator()
+        {
+            RuleFor(x => x.Name)
+                .NotEmpty().WithMessage("Name is required.")
+                .Length(2, 50).WithMessage("Name must be between 2 and 50 characters.");
+           
+        }
+    }
+
+    //public class SubmitFormCommandValidator : AbstractValidator<SubmitFormCommand>
+    //{
+    //    public SubmitFormCommandValidator()
+    //    {
+    //        RuleFor(command => command.SiteWebId)
+    //            .Must(BeAValidObjectId).WithMessage("Invalid SiteWebId format.");
+
+    //        RuleFor(command => command.FormId)
+    //            .Must(BeAValidObjectId).WithMessage("Invalid FormId format.");
+
+    //        RuleFor(command => command.UserId)
+    //            .Must(BeAValidObjectId).WithMessage("Invalid UserId format.");
+
+            
+    //    }
+
+    //    private bool BeAValidObjectId(string id) => ObjectId.TryParse(id, out _);
+    //}
 }

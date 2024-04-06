@@ -73,13 +73,21 @@
               "target": "Package",
               "version": "[5.1.0, )"
             },
+            "Microsoft.Graph": {
+              "target": "Package",
+              "version": "[4.13.0, )"
+            },
+            "Microsoft.Identity.Client": {
+              "target": "Package",
+              "version": "[4.60.1, )"
+            },
             "MongoDB.Driver": {
               "target": "Package",
               "version": "[2.24.0, )"
             },
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",
-              "version": "[7.4.0, )"
+              "version": "[7.4.1, )"
             }
           },
           "imports": [
@@ -175,13 +183,21 @@
               "target": "Package",
               "version": "[5.1.0, )"
             },
+            "Microsoft.Graph": {
+              "target": "Package",
+              "version": "[4.13.0, )"
+            },
+            "Microsoft.Identity.Client": {
+              "target": "Package",
+              "version": "[4.60.1, )"
+            },
             "MongoDB.Driver": {
               "target": "Package",
               "version": "[2.24.0, )"
             },
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",
-              "version": "[7.4.0, )"
+              "version": "[7.4.1, )"
             }
           },
           "imports": [
