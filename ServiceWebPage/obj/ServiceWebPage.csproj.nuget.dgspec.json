@@ -71,6 +71,14 @@
               "target": "Package",
               "version": "[11.9.0, )"
             },
+            "Google.Apis.Auth": {
+              "target": "Package",
+              "version": "[1.67.0, )"
+            },
+            "Google.Apis.Sheets.v4": {
+              "target": "Package",
+              "version": "[1.67.0.3365, )"
+            },
             "MediatR.Extensions.Microsoft.DependencyInjection": {
               "target": "Package",
               "version": "[11.1.0, )"
@@ -176,6 +184,14 @@
             "FluentResults": {
               "target": "Package",
               "version": "[3.15.2, )"
+            },
+            "Google.Apis.Auth": {
+              "target": "Package",
+              "version": "[1.67.0, )"
+            },
+            "Google.Apis.Sheets.v4": {
+              "target": "Package",
+              "version": "[1.67.0.3365, )"
             },
             "MediatR.Extensions.Microsoft.DependencyInjection": {
               "target": "Package",
@@ -287,6 +303,14 @@
               "target": "Package",
               "version": "[3.15.2, )"
             },
+            "Google.Apis.Auth": {
+              "target": "Package",
+              "version": "[1.67.0, )"
+            },
+            "Google.Apis.Sheets.v4": {
+              "target": "Package",
+              "version": "[1.67.0.3365, )"
+            },
             "MediatR.Extensions.Microsoft.DependencyInjection": {
               "target": "Package",
               "version": "[11.1.0, )"
@@ -392,6 +416,14 @@
             "BCrypt.Net-Next": {
               "target": "Package",
               "version": "[4.0.3, )"
+            },
+            "Google.Apis.Auth": {
+              "target": "Package",
+              "version": "[1.67.0, )"
+            },
+            "Google.Apis.Sheets.v4": {
+              "target": "Package",
+              "version": "[1.67.0.3365, )"
             },
             "MediatR.Extensions.Microsoft.DependencyInjection": {
               "target": "Package",

@@ -7,7 +7,7 @@ namespace ServiceWebPage
 {
     public class Startup
     {
-        private IConfiguration Configuration;
+        public IConfiguration Configuration { get; }
         private readonly ILogger<Startup> _logger;
 
         public Startup(IConfiguration configuration, ILogger<Startup> logger)
@@ -22,8 +22,8 @@ namespace ServiceWebPage
             // services.ConfigureOptions<ConfigureSwagerOptions>();
             // services.AddMediatR(typeof(GetStudentByIdQueryHandler).GetTypeInfo().Assembly);
             // services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
-            services.AddConfigureHandler();
-            services.AddInfrastructure();
+            services.AddConfigureHandler(Configuration);
+            services.AddInfrastructure(Configuration);
 
             services.AddMongoDb(Configuration);
 
@@ -44,6 +44,7 @@ namespace ServiceWebPage
             {
                 c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "dotnet", Version = "V1" });
             });
+          
 
 
         }

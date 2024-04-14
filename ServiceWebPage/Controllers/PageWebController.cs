@@ -122,6 +122,14 @@ namespace ServiceWebPage.Controllers
             }
         }
 
+        [HttpPost("submit")]
+        public async Task<IActionResult> Submit([FromBody] FormulaireObjectModel formModel)
+        {
+            var command = new SubmitFormCommand { Form = formModel };
+            await _mediator.Send(command);
+            return Ok("Form submitted successfully.");
+        }
+
         [HttpPost("pages/{pageWebId}/adduser")]
         public async Task<IActionResult> AddUserToPageWeb(string pageWebId, [FromBody] UserModel request, CancellationToken cancellationToken)
         {

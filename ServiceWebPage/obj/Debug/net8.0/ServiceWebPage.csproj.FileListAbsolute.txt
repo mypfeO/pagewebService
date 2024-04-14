@@ -67,3 +67,17 @@ C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\ServiceWebPa
 C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\ServiceWebPage\obj\Debug\net8.0\ServiceWebPage.pdb
 C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\ServiceWebPage\obj\Debug\net8.0\ServiceWebPage.genruntimeconfig.cache
 C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\ServiceWebPage\obj\Debug\net8.0\ref\ServiceWebPage.dll
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\ServiceWebPage\bin\Debug\net8.0\Azure.Core.dll
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\ServiceWebPage\bin\Debug\net8.0\Google.Apis.dll
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\ServiceWebPage\bin\Debug\net8.0\Google.Apis.Auth.dll
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\ServiceWebPage\bin\Debug\net8.0\Google.Apis.Core.dll
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\ServiceWebPage\bin\Debug\net8.0\Google.Apis.Sheets.v4.dll
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\ServiceWebPage\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\ServiceWebPage\bin\Debug\net8.0\Microsoft.Graph.dll
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\ServiceWebPage\bin\Debug\net8.0\Microsoft.Graph.Core.dll
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\ServiceWebPage\bin\Debug\net8.0\Microsoft.Identity.Client.dll
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\ServiceWebPage\bin\Debug\net8.0\Newtonsoft.Json.dll
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\ServiceWebPage\bin\Debug\net8.0\System.CodeDom.dll
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\ServiceWebPage\bin\Debug\net8.0\System.Management.dll
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\ServiceWebPage\bin\Debug\net8.0\System.Memory.Data.dll
+C:\Users\ELMEHDI\source\repos\AspDotNetMicroservices\ServiceWebPage\ServiceWebPage\bin\Debug\net8.0\runtimes\win\lib\net7.0\System.Management.dll

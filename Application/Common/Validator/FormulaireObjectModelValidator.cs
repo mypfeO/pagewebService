@@ -69,9 +69,9 @@ namespace Application.Common.Validator
                 .NotEmpty().WithMessage("Le titre ne peut pas être vide.")
                 .MaximumLength(100).WithMessage("Le titre ne peut pas dépasser 100 caractères.");
 
-            RuleFor(x => x.ImageLink)
-                .NotEmpty().WithMessage("Le lien de l'image ne peut pas être vide.")
-                .MaximumLength(255).WithMessage("Le lien de l'image ne peut pas dépasser 255 caractères.");
+            //RuleFor(x => x.ImageLink)
+            //    .NotEmpty().WithMessage("Le lien de l'image ne peut pas être vide.")
+            //    .MaximumLength(255).WithMessage("Le lien de l'image ne peut pas dépasser 255 caractères.");
         }
     }
 

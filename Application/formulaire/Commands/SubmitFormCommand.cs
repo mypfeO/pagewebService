@@ -1,4 +1,5 @@
-﻿using Domaine.Entities;
+﻿using Application.Models;
+using Domaine.Entities;
 using FluentResults;
 using MediatR;
 using System;
@@ -9,10 +10,8 @@ using System.Threading.Tasks;
 
 namespace Application.formulaire.Commands
 {
-    public class SubmitFormCommand : IRequest<Result<string>>
+    public class SubmitFormCommand : IRequest
     {
-        public string ExcelFileLink { get; set; }
-
-        public FormulaireSubmitedDTO Formulaire { get; set; }
+        public FormulaireObjectModel Form { get; set; }
     }
 }
