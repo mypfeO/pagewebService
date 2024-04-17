@@ -1,5 +1,6 @@
 ﻿using Domain.Reposotires;
 using Domaine.Reposotires;
+using Infrastructure.Cloudery;
 using Infrastructure.GoogleService;
 using Infrastructure.Repositories;
 using MediatR;
@@ -26,6 +27,14 @@ namespace Infrastructure
             services.AddSingleton<IGoogleSheetsService>(provider =>
              new GoogleSheetsService(configuration["GoogleSheets:CredentialsFilePath"]));
 
+            services.AddSingleton<CloudinaryService>(provider => {
+                var config = provider.GetRequiredService<IConfiguration>();
+                var cloudinaryConfig = config.GetSection("Cloudinary");
+                return new CloudinaryService(
+                    cloudinaryConfig["CloudName"],
+                    cloudinaryConfig["ApiKey"],
+                    cloudinaryConfig["ApiSecret"]);
+            });
 
         }
     }

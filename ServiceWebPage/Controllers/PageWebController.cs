@@ -22,7 +22,7 @@ namespace ServiceWebPage.Controllers
     {
         private readonly IMediator _mediator;
         private readonly IMapper _mapper;
-
+        private readonly ILogger _logger;
         public PageWebController(IMediator mediator, IMapper mapper)
         {
             _mediator = mediator;
@@ -81,7 +81,7 @@ namespace ServiceWebPage.Controllers
 
             if (result.IsSuccess)
             {
-                 var formUrl = $"{Request.Scheme}://{Request.Host}/forms/{formulaireModel.SiteWebId}/{result.Value}";
+                 var formUrl = $"{Request.Scheme}://{Request.Host}/forms/{formulaireModel.SiteWebId}/{result.Value}/{formulaireModel.ExcelFileLink}";
                 return Ok(new { Message = "Form created successfully.", FormUrl = formUrl });
             }
             else
@@ -91,7 +91,7 @@ namespace ServiceWebPage.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Errors = errorMessages });
             }
         }
-        [HttpGet("{siteWebId}/{formId}")]
+        [HttpGet("{siteWebId}/{formId}/{excelfile}")]
         [ProducesResponseType(typeof(FormulaireObjectModel), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
@@ -121,14 +121,17 @@ namespace ServiceWebPage.Controllers
                 }
             }
         }
-
         [HttpPost("submit")]
-        public async Task<IActionResult> Submit([FromBody] FormulaireObjectModel formModel)
+        public async Task<IActionResult> Submit([FromForm] SubmitFormModel model)
         {
-            var command = new SubmitFormCommand { Form = formModel };
+           
+
+            var command = new SubmitFormCommand { Form = model };
             await _mediator.Send(command);
-            return Ok("Form submitted successfully.");
+            return Ok(new { Message = "Form submitted successfully." });
         }
+
+
 
         [HttpPost("pages/{pageWebId}/adduser")]
         public async Task<IActionResult> AddUserToPageWeb(string pageWebId, [FromBody] UserModel request, CancellationToken cancellationToken)

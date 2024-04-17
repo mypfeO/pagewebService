@@ -26,8 +26,8 @@ namespace Application.Common.Validator
 
             RuleFor(x => x.ExcelFileLink)
           .NotEmpty().WithMessage("Le lien du fichier Excel ne peut pas être vide.")
-          .Must(Link => Uri.IsWellFormedUriString(Link, UriKind.Absolute)).WithMessage("Le lien du fichier Excel n'est pas un URI valide.");
-
+        //  .Must(Link => Uri.IsWellFormedUriString(Link, UriKind.Absolute)).WithMessage("Le lien du fichier Excel n'est pas un URI valide.");
+        .Length(2, 50).WithMessage("link must be between 2 and 50 characters.");
         }
     }
 
@@ -117,9 +117,18 @@ namespace Application.Common.Validator
     //        RuleFor(command => command.UserId)
     //            .Must(BeAValidObjectId).WithMessage("Invalid UserId format.");
 
-            
+
     //    }
 
     //    private bool BeAValidObjectId(string id) => ObjectId.TryParse(id, out _);
     //}
+    //public class FormFieldValidator : AbstractValidator<FormField>
+    //{
+    //    public FormFieldValidator()
+    //    {
+    //        RuleFor(x => x.RespenseText).NotEmpty().When(x => !x.ImageLink);
+    //        RuleFor(x => x.RespenseFile).NotNull().When(x => x.ImageLink);
+    //    }
+    //}
+
 }

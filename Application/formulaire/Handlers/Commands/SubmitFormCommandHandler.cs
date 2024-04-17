@@ -8,32 +8,47 @@ using Google.Apis.Services;
 using Application.formulaire.Commands;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Application;
+using System.Linq;
+using Infrastructure.Cloudery;
 using Google;
+using Microsoft.AspNetCore.Http;
+using Application;
 
 public class SubmitFormCommandHandler : IRequestHandler<SubmitFormCommand, Unit>
 {
     private readonly ILogger<SubmitFormCommandHandler> _logger;
     private readonly GoogleApiSettings _googleApiSettings;
+    private readonly CloudinaryService _cloudinaryService;
     private SheetsService _sheetsService;
 
-    public SubmitFormCommandHandler(ILogger<SubmitFormCommandHandler> logger, IOptions<GoogleApiSettings> googleApiSettings)
+    public SubmitFormCommandHandler(
+      ILogger<SubmitFormCommandHandler> logger,
+      IOptions<GoogleApiSettings> googleApiSettings,
+      CloudinaryService cloudinaryService)
     {
-        _logger = logger;
-        _googleApiSettings = googleApiSettings.Value;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _googleApiSettings = googleApiSettings.Value ?? throw new ArgumentNullException(nameof(googleApiSettings));
+        _cloudinaryService = cloudinaryService ?? throw new ArgumentNullException(nameof(cloudinaryService));
         InitializeSheetsService();
     }
+
 
     private void InitializeSheetsService()
     {
         GoogleCredential credential = GoogleCredential.FromFile(_googleApiSettings.CredentialsFilePath)
             .CreateScoped(SheetsService.Scope.Spreadsheets);
+        if (credential == null)
+        {
+            throw new InvalidOperationException("Failed to create Google credentials.");
+        }
+
         _sheetsService = new SheetsService(new BaseClientService.Initializer
         {
             HttpClientInitializer = credential,
             ApplicationName = "Google Sheets API Integration",
         });
     }
+
 
     public async Task<Unit> Handle(SubmitFormCommand command, CancellationToken cancellationToken)
     {
@@ -42,30 +57,44 @@ public class SubmitFormCommandHandler : IRequestHandler<SubmitFormCommand, Unit>
 
         try
         {
-            var getHeaderRequest = _sheetsService.Spreadsheets.Values.Get(spreadsheetId, range);
-            var headerResponse = await getHeaderRequest.ExecuteAsync(cancellationToken);
-            bool headersExist = headerResponse.Values != null && headerResponse.Values.Count > 0;
+            List<object> headers = new List<object>();
+            List<object> values = new List<object>();
 
-            // Prepare rows for appending
-            var valueRange = new ValueRange();
-            if (!headersExist)
+            foreach (var bodyItem in command.Form.Body)
             {
-                var headersRow = command.Form.Formulaire.Body.Select(b => b.Titre).Cast<object>().ToList();
-                valueRange.Values = new List<IList<object>> { headersRow };
-                range = "Feuille 1"; // Adjust range for appending headers
+                if (bodyItem != null)
+                {
+                    if (bodyItem.ImageLink && bodyItem.RespenseFile != null)
+                    {
+                        string imageUrl = await _cloudinaryService.UploadImageAsync(bodyItem.RespenseFile);
+                        bodyItem.RespenseText = imageUrl;
+                        values.Add(imageUrl);
+                    }
+                    else
+                    {
+                        values.Add(bodyItem.RespenseText);
+                    }
+
+                    headers.Add(bodyItem.Titre);
+                }
             }
 
-            var responseRow = command.Form.Formulaire.Body.Select(b => b.Respense).Cast<object>().ToList();
-            if (valueRange.Values == null)
-                valueRange.Values = new List<IList<object>> { responseRow };
-            else
-                valueRange.Values.Add(responseRow);
+            var valueRange = new ValueRange();
+            bool headersExist = await CheckHeadersExist(spreadsheetId, range, cancellationToken);
 
-            // Append data to the spreadsheet
+            // Initialize valueRange.Values to an empty list to ensure it's never null
+            valueRange.Values = new List<IList<object>>();
+
+            if (!headersExist)
+            {
+                valueRange.Values.Add(headers);
+            }
+
+            valueRange.Values.Add(values);
+
             var appendRequest = _sheetsService.Spreadsheets.Values.Append(valueRange, spreadsheetId, range);
             appendRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
             await appendRequest.ExecuteAsync(cancellationToken);
-
             _logger.LogInformation("Submission appended successfully.");
             return Unit.Value;
         }
@@ -81,5 +110,26 @@ public class SubmitFormCommandHandler : IRequestHandler<SubmitFormCommand, Unit>
         }
     }
 
+    private async Task<bool> CheckHeadersExist(string spreadsheetId, string range, CancellationToken cancellationToken)
+    {
+        var getHeaderRequest = _sheetsService.Spreadsheets.Values.Get(spreadsheetId, range);
+        var headerResponse = await getHeaderRequest.ExecuteAsync(cancellationToken);
+        return headerResponse.Values != null && headerResponse.Values.Count > 0;
+    }
 
+    //private ValueRange PrepareValueRange(List<FormField> fields, bool headersExist)
+    //{
+    //    var valueRange = new ValueRange();
+    //    if (!headersExist)
+    //    {
+    //        var headersRow = fields.Select(f => f.Titre).Cast<object>().ToList();
+    //        valueRange.Values = new List<IList<object>> { headersRow };
+    //    }
+
+    //    var responseRow = fields.Select(f => f.RespenseText ?? "").Cast<object>().ToList();
+    //    valueRange.Values = valueRange.Values ?? new List<IList<object>>();
+    //    valueRange.Values.Add(responseRow);
+
+    //    return valueRange;
+    //}
 }

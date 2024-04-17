@@ -12,6 +12,7 @@ namespace Application.formulaire.Commands
 {
     public class SubmitFormCommand : IRequest
     {
-        public FormulaireObjectModel Form { get; set; }
+        public SubmitFormModel Form { get; set; }
+        
     }
 }

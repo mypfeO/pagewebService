@@ -31,8 +31,8 @@ namespace Application.Common.Mappings
             CreateMap<BodyItem, BodyItemDTO>()
                 .ForMember(dest => dest.Titre, opt => opt.MapFrom(src => src.Titre))
                 .ForMember(dest => dest.ChampText, opt => opt.MapFrom(src => src.ChampText))
-                .ForMember(dest => dest.ImageLink, opt => opt.MapFrom(src => src.ImageLink))
-             .ForMember(dest => dest.Respense, opt => opt.MapFrom(src => src.Respense));
+                .ForMember(dest => dest.ImageLink, opt => opt.MapFrom(src => src.ImageLink));
+            
 
             CreateMap<Footer, FooterDTO>()
                 .ForMember(dest => dest.Titre, opt => opt.MapFrom(src => src.Titre));

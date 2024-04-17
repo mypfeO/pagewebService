@@ -53,6 +53,10 @@
               "target": "Package",
               "version": "[4.0.3, )"
             },
+            "CloudinaryDotNet": {
+              "target": "Package",
+              "version": "[1.26.2, )"
+            },
             "FluentResults": {
               "target": "Package",
               "version": "[3.15.2, )"

@@ -27,7 +27,7 @@ namespace Application.Models
         public string Titre { get; set; } = string.Empty;
         public bool ChampText { get; set; } = false;
         public bool ImageLink { get; set; } = false;
-        public string Respense { get; set; } = string.Empty;
+       
     }
 
     public class Footer : IMapFrom<FooterDTO> 

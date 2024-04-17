@@ -1,7 +1,12 @@
-﻿using Application.Common;
-using Application.Common.Mappings;
+﻿using Application.Common.Mappings;
+using Application.Common;
 using Infrastructure;
 using MediatR;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using System;
 
 namespace ServiceWebPage
 {
@@ -15,13 +20,9 @@ namespace ServiceWebPage
             Configuration = configuration;
             _logger = logger;
         }
-        // IOC
+
         public void ConfigureServices(IServiceCollection services)
         {
-
-            // services.ConfigureOptions<ConfigureSwagerOptions>();
-            // services.AddMediatR(typeof(GetStudentByIdQueryHandler).GetTypeInfo().Assembly);
-            // services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
             services.AddConfigureHandler(Configuration);
             services.AddInfrastructure(Configuration);
 
@@ -30,35 +31,33 @@ namespace ServiceWebPage
             services.AddAutoMapper(typeof(MappingProfile));
             services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
 
-            services.AddLogging(configure =>
-            {
-                configure.AddConsole(); // Ajoute la sortie console
-            });
-
+            services.AddLogging(configure => configure.AddConsole());
 
             services.AddEndpointsApiExplorer();
             services.AddSingleton(Configuration);
             services.AddControllers();
-            
-            services.AddSwaggerGen(c =>
+
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "dotnet", Version = "V1" }));
+            services.AddCors(options =>
             {
-                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "dotnet", Version = "V1" });
+                options.AddPolicy("AllowAll", builder =>
+                    builder.AllowAnyOrigin()
+                           .AllowAnyMethod()
+                           .AllowAnyHeader());
             });
-          
-
-
         }
-        // Midlwears
+
         public void Configure(IApplicationBuilder app, IHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-;
+
             app.UseHttpsRedirection();
             app.UseRouting();
-            app.UseCors("AllowOrigin");
+
+            app.UseCors("AllowAll"); // Corrected to use "AllowAll" which is defined above
 
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers();
@@ -71,8 +70,6 @@ namespace ServiceWebPage
                 op.RoutePrefix = string.Empty;
                 op.DocumentTitle = "My Swagger";
             });
-
         }
-
     }
 }
