@@ -4,10 +4,12 @@ using Application.formulaire.Commands;
 using Application.formulaire.Queries;
 using Application.Models;
 using Application.PageWeb.Commands;
+using Application.PageWeb.Querys;
 using AutoMapper;
 using Domaine.Entities;
 using FluentResults;
 using FluentValidation.Results;
+using Infrastructure.Cloudery;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
@@ -22,12 +24,48 @@ namespace ServiceWebPage.Controllers
     {
         private readonly IMediator _mediator;
         private readonly IMapper _mapper;
-        private readonly ILogger _logger;
-        public PageWebController(IMediator mediator, IMapper mapper)
+        private readonly ILogger<GetWebPagesByUserIdRequest> _logger;
+        public PageWebController(IMediator mediator, IMapper mapper, ILogger<GetWebPagesByUserIdRequest> logger)
         {
             _mediator = mediator;
             _mapper = mapper;
+            _logger= logger;
+
         }
+        [HttpGet("by-webid/{siteWebId}")]
+        public async Task<IActionResult> GetFormBySiteWebId(string siteWebId)
+        {
+            var query = new GetFormsBySiteWebIdQuery { SiteWebId = siteWebId };
+            var result = await _mediator.Send(query);
+            if (result == null)
+                return NotFound();
+
+            return Ok(result);
+        }
+        [HttpGet("by-user/{Admin}")]
+        public async Task<IActionResult> GetPageWebsByUserId([FromRoute] GetWebPagesByUserIdRequest request)
+        {
+            _logger.LogInformation("Received UserId: {UserId}", request.Admin);  // Ensure your controller has a logger injected if it doesn't already.
+
+            if (!ObjectId.TryParse(request.Admin, out ObjectId userObjectId))
+            {
+                _logger.LogWarning("Failed to parse ObjectId from UserId: {UserId}", request.Admin);
+                return BadRequest("Invalid user ID format.");
+            }
+
+            var query = new GetPageWebsByUserIdQuery { Admin = userObjectId };
+            try
+            {
+                var pageWebs = await _mediator.Send(query);
+                return Ok(pageWebs);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching page webs");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred: " + ex.Message);
+            }
+        }
+
 
         [HttpPost("createWebPage")]
         [ProducesResponseType(typeof(IDictionary<string, string>), StatusCodes.Status200OK)] 
@@ -43,7 +81,7 @@ namespace ServiceWebPage.Controllers
                 return BadRequest(new { Errors = errors });
             }
 
-            var result = await _mediator.Send(new PageWebCreateCommand { Name = model.Name, users = model.Users }, cancellationToken);
+            var result = await _mediator.Send(new PageWebCreateCommand { Name = model.Name,Admin=model.Admin, users = model.Users }, cancellationToken);
 
             if (result.IsSuccess)
             {
@@ -55,17 +93,17 @@ namespace ServiceWebPage.Controllers
                 return BadRequest(new { Errors = errorMessages });
             }
         }
+
         [HttpPost("createFormulaire")]
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)] 
-        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)] 
-        public async Task<IActionResult> CreateFormulaire([FromBody] FormulaireObjectModel formulaireModel, CancellationToken cancellationToken)
+        public async Task<IActionResult> CreateFormulaire([FromForm] FormulaireObjectModel formulaireModel, CancellationToken cancellationToken)
         {
+            Console.WriteLine("Received FormulaireObjectModel: ");
+            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(formulaireModel));
+
             var validator = new FormulaireObjectModelValidator();
             var validationResult = await validator.ValidateAsync(formulaireModel, cancellationToken);
             if (!validationResult.IsValid)
             {
-
                 var validationErrors = validationResult.Errors.Select(e => e.ErrorMessage);
                 return BadRequest(new { Errors = validationErrors });
             }
@@ -74,34 +112,32 @@ namespace ServiceWebPage.Controllers
             {
                 SiteWebId = formulaireModel.SiteWebId,
                 Formulaire = formulaireModel.Formulaire,
-                ExcelFileLink = formulaireModel.ExcelFileLink
+                ExcelFileLink = formulaireModel.ExcelFileLink,
+                ProductImages = formulaireModel.Design.ProductImages,
+                Logo = formulaireModel.Design.Logo,
+                BackgroundColor = formulaireModel.Design.BackgroundColor
             };
 
             var result = await _mediator.Send(createFormulaireCommand, cancellationToken);
 
             if (result.IsSuccess)
             {
-                 var formUrl = $"{Request.Scheme}://{Request.Host}/forms/{formulaireModel.SiteWebId}/{result.Value}/{formulaireModel.ExcelFileLink}";
+                var formUrl = $"http://localhost:5173/forms/{formulaireModel.SiteWebId}/{result.Value}";
                 return Ok(new { Message = "Form created successfully.", FormUrl = formUrl });
             }
             else
             {
-               
                 var errorMessages = result.Errors.Select(e => e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Errors = errorMessages });
             }
         }
-        [HttpGet("{siteWebId}/{formId}/{excelfile}")]
-        [ProducesResponseType(typeof(FormulaireObjectModel), StatusCodes.Status200OK)]
+        [HttpGet("{siteWebId}/{formId}")]
+        [ProducesResponseType(typeof(GetFormsById), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetForm(string siteWebId, string formId, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetFormulaire(string siteWebId, string formId, CancellationToken cancellationToken)
         {
-            var query = new GetFormQuery { SiteWebId = siteWebId, FormId = formId };
-
-            // La validation peut être faite ici si nécessaire, ou assurée par des Data Annotations sur GetFormQuery
-
+            var query = new GetFormulaireQuery { SiteWebId = siteWebId, FormId = formId };
             var result = await _mediator.Send(query, cancellationToken);
 
             if (result.IsSuccess)
@@ -110,17 +146,11 @@ namespace ServiceWebPage.Controllers
             }
             else
             {
-                if (result.Errors.Any(e => e.Message.Contains("not found")))
-                {
-                    return NotFound("The requested form was not found.");
-                }
-                else
-                {
-                    // Log des erreurs pour un diagnostic plus profond peut être fait ici
-                    return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
-                }
+                var errorMessages = result.Errors.Select(e => e.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Errors = errorMessages });
             }
         }
+
         [HttpPost("submit")]
         public async Task<IActionResult> Submit([FromForm] SubmitFormModel model)
         {

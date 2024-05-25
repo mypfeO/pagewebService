@@ -18,13 +18,11 @@ namespace Infrastructure.Cloudery
 
         public async Task<string> UploadImageAsync(IFormFile file)
         {
-            // Ensure the file is not null
             if (file == null)
             {
                 return null;
             }
 
-            // Open a stream for the file
             using (var stream = file.OpenReadStream())
             {
                 var uploadParams = new ImageUploadParams()
@@ -35,7 +33,15 @@ namespace Infrastructure.Cloudery
                 return uploadResult.SecureUrl?.AbsoluteUri;
             }
         }
-
+        public async Task<string> UploadImageAsync(string filePath)
+        {
+            var uploadParams = new ImageUploadParams()
+            {
+                File = new FileDescription(filePath)
+            };
+            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+            return uploadResult.SecureUrl?.AbsoluteUri;
+        }
         public async Task<string> UploadVideoAsync(IFormFile file)
         {
             // Ensure the file is not null
@@ -55,5 +61,6 @@ namespace Infrastructure.Cloudery
                 return uploadResult.SecureUrl?.AbsoluteUri;
             }
         }
+
     }
 }

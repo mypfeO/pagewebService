@@ -13,10 +13,18 @@ namespace Application.Models
 
     public class FormulaireObjectModel : IMapFrom<FormulaireObjectDTO>
     {
-        public string SiteWebId { get; set; } 
+        public string SiteWebId { get; set; }
         public Formulaire Formulaire { get; set; }
         public string ExcelFileLink { get; set; }
+        public Design Design { get; set; }
 
+        public void Mapping(Profile profile)
+        {
+            profile.CreateMap<FormulaireObjectDTO, FormulaireObjectModel>()
+                   .ForMember(dest => dest.SiteWebId, opt => opt.MapFrom(src => src.SiteWebId.ToString()))
+                   .ForMember(dest => dest.ExcelFileLink, opt => opt.MapFrom(src => src.ExcelFileLink))
+                   .ForMember(dest => dest.Design, opt => opt.MapFrom(src => src.Design));
+        }
     }
 
 

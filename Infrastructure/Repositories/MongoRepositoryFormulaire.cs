@@ -31,15 +31,12 @@ namespace Infrastructure.Repositories
             }
         }
 
-        public async Task<FormulaireObjectDTO> GetFormAsync(string siteWebId, string formId, CancellationToken cancellationToken)
+        public async Task<FormulaireObjectDTO> GetFormulaireAsync(ObjectId siteWebId, ObjectId formId, CancellationToken cancellationToken)
         {
-            var filter = Builders<FormulaireObjectDTO>.Filter.And(
-                Builders<FormulaireObjectDTO>.Filter.Eq(f => f.SiteWebId, new ObjectId(siteWebId)),
-                Builders<FormulaireObjectDTO>.Filter.Eq(f => f._id, new ObjectId(formId))
-            );
-
+            var filter = Builders<FormulaireObjectDTO>.Filter.Eq(f => f.SiteWebId, siteWebId) & Builders<FormulaireObjectDTO>.Filter.Eq(f => f._id, formId);
             return await _formulaireCollection.Find(filter).FirstOrDefaultAsync(cancellationToken);
         }
+
 
 
         public async Task<List<FormulaireSummaryDTO>> GetFormsBySiteIdAsync(string siteWebId, CancellationToken cancellationToken)
@@ -85,6 +82,11 @@ namespace Infrastructure.Repositories
                 // Using the generic error handler to wrap the exception message
                 return Result.Fail<string>($"An error occurred while saving the form: {ex.Message}");
             }
+        }
+        public async Task<List<FormulaireObjectDTO>> GetFormsBySiteWebIdAsync(ObjectId siteWebId, CancellationToken cancellationToken)
+        {
+            var filter = Builders<FormulaireObjectDTO>.Filter.Eq(f => f.SiteWebId, siteWebId);
+            return await _formulaireCollection.Find(filter).ToListAsync(cancellationToken);
         }
     }
 }

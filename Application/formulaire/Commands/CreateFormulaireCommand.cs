@@ -1,6 +1,7 @@
 ﻿using Application.Models;
 using FluentResults;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
@@ -15,10 +16,15 @@ namespace Application.formulaire.Commands
     {
         public string SiteWebId { get; set; }
         public Formulaire Formulaire { get; set; }
-        public string ExcelFileLink { get; set; }   
+        public string ExcelFileLink { get; set; }
+        public List<IFormFile> ProductImages { get; set; }
+        public IFormFile Logo { get; set; }
+        public string BackgroundColor { get; set; }
     }
 
+
+
     // Gestionnaire
-   
+
 
 }

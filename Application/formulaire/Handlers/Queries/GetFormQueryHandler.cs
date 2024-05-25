@@ -1,39 +1,49 @@
-﻿using Application.formulaire.Queries;
+﻿using Application.Eroors;
+using Application.formulaire.Queries;
 using Application.Models;
 using AutoMapper;
 using Domaine.Entities;
 using Domaine.Reposotires;
 using FluentResults;
 using MediatR;
+using MongoDB.Bson;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Application.formulaire.Handlers.Queries
+public class GetFormulaireQueryHandler : IRequestHandler<GetFormulaireQuery, Result<GetFormsById>>
 {
-    public class GetFormQueryHandler : IRequestHandler<GetFormQuery, Result<FormulaireObjectModel>>
+    private readonly IRepositoryFormulaire _repositoryFormulaire;
+    private readonly IMapper _mapper;
+
+    public GetFormulaireQueryHandler(IRepositoryFormulaire repositoryFormulaire, IMapper mapper)
     {
-        private readonly IRepositoryFormulaire _repository;
-        private readonly IMapper _mapper;
+        _repositoryFormulaire = repositoryFormulaire;
+        _mapper = mapper;
+    }
 
-        public GetFormQueryHandler(IRepositoryFormulaire repository, IMapper mapper)
+    public async Task<Result<GetFormsById>> Handle(GetFormulaireQuery request, CancellationToken cancellationToken)
+    {
+        try
         {
-            _repository = repository;
-            _mapper = mapper;
-        }
-
-        public async Task<Result<FormulaireObjectModel>> Handle(GetFormQuery request, CancellationToken cancellationToken)
-        {
-            var formulaireDto = await _repository.GetFormAsync(request.SiteWebId,request.FormId, cancellationToken);
-
-            if (formulaireDto == null)
+            if (!ObjectId.TryParse(request.SiteWebId, out ObjectId siteWebObjectId) || !ObjectId.TryParse(request.FormId, out ObjectId formId))
             {
-                return Result.Fail<FormulaireObjectModel>("Form not found");
+                return EroorsHandler.HandleGenericError<GetFormsById>("Invalid SiteWebId or FormId format.");
             }
 
-            
-            var formulaireModel = _mapper.Map<FormulaireObjectModel>(formulaireDto);
+            var formulaireDTO = await _repositoryFormulaire.GetFormulaireAsync(siteWebObjectId, formId, cancellationToken);
 
+            if (formulaireDTO == null)
+            {
+                return EroorsHandler.HandleGenericError<GetFormsById>("Formulaire not found.");
+            }
+
+            var formulaireModel = _mapper.Map<GetFormsById>(formulaireDTO);
             return Result.Ok(formulaireModel);
+        }
+        catch (Exception ex)
+        {
+            return EroorsHandler.HandleGenericError<GetFormsById>($"Unexpected error: {ex.Message}");
         }
     }
 }

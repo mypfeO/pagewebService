@@ -2,6 +2,8 @@
 using Domain.Reposotires;
 using Domaine.Entities;
 using FluentResults;
+using Microsoft.Extensions.Logging;
+using Microsoft.Graph;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
@@ -15,6 +17,7 @@ namespace Infrastructure.Repositories
     public class MongoRepositoryPageWeb : IRepositoryPageWeb
     {
         private readonly IMongoCollection<PageWebDTO> _pageWebCollection;
+        private readonly ILogger<PageWebDTO> _logger;
         public MongoRepositoryPageWeb(IMongoDatabase database)
         {
             _pageWebCollection = database.GetCollection<PageWebDTO>("pagewebs");
@@ -58,6 +61,14 @@ namespace Infrastructure.Repositories
                 return Result.Fail("PageWeb not updated.");
             }
         }
+        public async Task<List<PageWebDTO>> GetPageWebsByUserId(ObjectId admin, CancellationToken cancellationToken)
+        {
+            var filter = Builders<PageWebDTO>.Filter.Eq("Admin", admin);
+            var pages = await _pageWebCollection.Find(filter).ToListAsync(cancellationToken);
+            return pages;
+
+        }
+
 
     }
 }

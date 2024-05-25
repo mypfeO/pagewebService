@@ -5,9 +5,11 @@ using MediatR;
 
 namespace Application.formulaire.Queries
 {
-    public class GetFormQuery : IRequest<Result<FormulaireObjectModel>>
+    public class GetFormulaireQuery : IRequest<Result<GetFormsById>>
     {
-        public string? SiteWebId { get; set; }
-        public string? FormId { get; set; }
+        public string SiteWebId { get; set; }
+        public string FormId { get; set; }
     }
+
+
 }

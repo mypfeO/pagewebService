@@ -17,5 +17,7 @@ namespace Domain.Reposotires
         Task<Result> AddPageWebAsync(PageWebDTO pageweb, CancellationToken cancellationToken);
         Task<PageWebDTO> GetPageWebByIdAsync(ObjectId pageWebId, CancellationToken cancellationToken);
         Task<Result> UpdatePageWebAsync(PageWebDTO pageWeb, CancellationToken cancellationToken);
+        public Task<List<PageWebDTO>> GetPageWebsByUserId(ObjectId admin, CancellationToken cancellationToken);
+
     }
 }

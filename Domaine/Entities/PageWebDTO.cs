@@ -11,6 +11,7 @@ namespace Domaine.Entities
     {
         public ObjectId Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public ObjectId Admin { get; set; }
         public List<ObjectId> Users { get; set; } = new List<ObjectId>();
     }
 

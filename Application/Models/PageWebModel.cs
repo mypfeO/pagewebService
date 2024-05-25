@@ -9,9 +9,10 @@ using System.Threading.Tasks;
 
 namespace Application.Models
 {
-    public class PageWebModel : IMapFrom<PageWebDTO>
+    public class PageWebModel 
     {
         public string Name { get; set; } = string.Empty;
+        public string Admin { get; set; } 
         public List<ObjectId> Users { get; set; } = new List<ObjectId>();
     }
 }

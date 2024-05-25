@@ -83,6 +83,10 @@
               "target": "Package",
               "version": "[1.67.0.3365, )"
             },
+            "IdentityServer4": {
+              "target": "Package",
+              "version": "[4.1.2, )"
+            },
             "MediatR.Extensions.Microsoft.DependencyInjection": {
               "target": "Package",
               "version": "[11.1.0, )"
@@ -200,6 +204,10 @@
             "Google.Apis.Sheets.v4": {
               "target": "Package",
               "version": "[1.67.0.3365, )"
+            },
+            "IdentityServer4": {
+              "target": "Package",
+              "version": "[4.1.2, )"
             },
             "MediatR.Extensions.Microsoft.DependencyInjection": {
               "target": "Package",
@@ -323,6 +331,10 @@
               "target": "Package",
               "version": "[1.67.0.3365, )"
             },
+            "IdentityServer4": {
+              "target": "Package",
+              "version": "[4.1.2, )"
+            },
             "MediatR.Extensions.Microsoft.DependencyInjection": {
               "target": "Package",
               "version": "[11.1.0, )"
@@ -440,6 +452,10 @@
             "Google.Apis.Sheets.v4": {
               "target": "Package",
               "version": "[1.67.0.3365, )"
+            },
+            "IdentityServer4": {
+              "target": "Package",
+              "version": "[4.1.2, )"
             },
             "MediatR.Extensions.Microsoft.DependencyInjection": {
               "target": "Package",

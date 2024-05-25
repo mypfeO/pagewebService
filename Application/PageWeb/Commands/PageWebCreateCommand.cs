@@ -14,6 +14,7 @@ namespace Application.PageWeb.Commands
     public class PageWebCreateCommand : IRequest<Result<string>>
     {
         public string Name { get; set; } = string.Empty;
+        public string Admin { get; set; } 
         public List<ObjectId> users { get; set; } = new List<ObjectId>();
 
     }

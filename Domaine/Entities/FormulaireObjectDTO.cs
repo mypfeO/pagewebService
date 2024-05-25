@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using Microsoft.AspNetCore.Http;
+using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace Domaine.Entities
         public ObjectId SiteWebId { get; set; } 
         public FormulaireDTO? Formulaire { get; set; }
         public string? ExcelFileLink { get; set; }
+        public DesignDTO Design { get; set; } // Add this line
     }
     
     public class FormulaireDTO
@@ -34,11 +36,18 @@ namespace Domaine.Entities
         public bool ChampText { get; set; } = false;
         public bool ImageLink { get; set; } = false;
         public string Respense { get; set; } = string.Empty;
+        public bool required { get; set; } = false;
+
     }
 
     public class FooterDTO
     {
         public string Titre { get; set; } = string.Empty;
     }
-
+    public class DesignDTO
+    {
+        public List<string> ProductImages { get; set; }
+        public string BackgroundColor { get; set; }
+        public string Logo { get; set; }
+    }
 }
