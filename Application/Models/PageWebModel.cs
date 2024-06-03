@@ -11,7 +11,9 @@ namespace Application.Models
 {
     public class PageWebModel : IMapFrom<PageWebDTO>
     {
-        public string Name { get; set; } = string.Empty;
-        public List<ObjectId> Users { get; set; } = new List<ObjectId>();
+       
+        public string Name { get; set; }
+        public string Theme { get; set; }  // New field for theme
+        public string Admin { get; set; }
     }
 }

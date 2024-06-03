@@ -31,15 +31,12 @@ namespace Infrastructure.Repositories
             }
         }
 
-        public async Task<FormulaireObjectDTO> GetFormAsync(string siteWebId, string formId, CancellationToken cancellationToken)
+        public async Task<FormulaireObjectDTO> GetFormulaireAsync(ObjectId siteWebId, ObjectId formId, CancellationToken cancellationToken)
         {
-            var filter = Builders<FormulaireObjectDTO>.Filter.And(
-                Builders<FormulaireObjectDTO>.Filter.Eq(f => f.SiteWebId, new ObjectId(siteWebId)),
-                Builders<FormulaireObjectDTO>.Filter.Eq(f => f._id, new ObjectId(formId))
-            );
-
+            var filter = Builders<FormulaireObjectDTO>.Filter.Eq(f => f.SiteWebId, siteWebId) & Builders<FormulaireObjectDTO>.Filter.Eq(f => f._id, formId);
             return await _formulaireCollection.Find(filter).FirstOrDefaultAsync(cancellationToken);
         }
+
 
 
         public async Task<List<FormulaireSummaryDTO>> GetFormsBySiteIdAsync(string siteWebId, CancellationToken cancellationToken)
@@ -65,9 +62,9 @@ namespace Infrastructure.Repositories
             return formulaireSummaryDTOs;
         }
 
-        public async Task<FormulaireObjectDTO> GetFormulaireByIdAsync(string formulaireId, CancellationToken cancellationToken)
+        public async Task<FormulaireObjectDTO> GetFormulaireByIdAsync(ObjectId objectId, CancellationToken cancellationToken)
         {
-            var objectId = ObjectId.Parse(formulaireId);
+            
             var filter = Builders<FormulaireObjectDTO>.Filter.Eq(x => x._id, objectId);
 
             return await _formulaireCollection.Find(filter).FirstOrDefaultAsync(cancellationToken);
@@ -84,6 +81,53 @@ namespace Infrastructure.Repositories
             {
                 // Using the generic error handler to wrap the exception message
                 return Result.Fail<string>($"An error occurred while saving the form: {ex.Message}");
+            }
+        }
+        public async Task<List<FormulaireObjectDTO>> GetFormsBySiteWebIdAsync(ObjectId siteWebId, CancellationToken cancellationToken)
+        {
+            var filter = Builders<FormulaireObjectDTO>.Filter.Eq(f => f.SiteWebId, siteWebId);
+            return await _formulaireCollection.Find(filter).ToListAsync(cancellationToken);
+        }
+        public async Task<Result> UpdateFormulaireAsync(FormulaireObjectDTO formulaire, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var filter = Builders<FormulaireObjectDTO>.Filter.Eq(x => x._id, formulaire._id);
+                var result = await _formulaireCollection.ReplaceOneAsync(filter, formulaire, cancellationToken: cancellationToken);
+
+                if (result.ModifiedCount == 1)
+                {
+                    return Result.Ok();
+                }
+                else
+                {
+                    return Result.Fail("Formulaire not updated.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Result.Fail($"Error updating form: {ex.Message}");
+            }
+        }
+        public async Task<Result> DeleteFormulaireAsync(ObjectId formulaireId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var filter = Builders<FormulaireObjectDTO>.Filter.Eq(x => x._id, formulaireId);
+                var deleteResult = await _formulaireCollection.DeleteOneAsync(filter, cancellationToken);
+
+                if (deleteResult.DeletedCount == 1)
+                {
+                    return Result.Ok();
+                }
+                else
+                {
+                    return Result.Fail("Formulaire not deleted.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Result.Fail($"Error deleting form: {ex.Message}");
             }
         }
     }

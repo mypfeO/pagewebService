@@ -18,16 +18,23 @@ namespace Application.PageWeb.Handlers
         private readonly IRepositoryPageWeb _repositoryPageWeb;
         public PageWebCreateCommandHandlers(IRepositoryPageWeb repositoryPageWeb)
         {
-            _repositoryPageWeb=repositoryPageWeb;
+            _repositoryPageWeb = repositoryPageWeb;
         }
+
         public async Task<Result<string>> Handle(PageWebCreateCommand request, CancellationToken cancellationToken)
         {
+            if (!ObjectId.TryParse(request.Admin, out ObjectId objectAdmin))
+            {
+                return Result.Fail<string>("Invalid admin ID format.");
+            }
+
             try
             {
                 var newPageWeb = new PageWebDTO
                 {
                     Name = request.Name,
-                    Users = new List<ObjectId>(),  
+                    Admin = objectAdmin,
+                    Theme = request.Theme  // Add this line for Theme
                 };
 
                 var result = await _repositoryPageWeb.AddPageWebAsync(newPageWeb, cancellationToken);
@@ -38,7 +45,7 @@ namespace Application.PageWeb.Handlers
                 }
                 else
                 {
-                    return Result.Fail<string>($"Erreur lors de la création de la page web. Raison ");
+                    return Result.Fail<string>($"Erreur lors de la création de la page web: {result.Errors.FirstOrDefault()?.Message}");
                 }
             }
             catch (Exception ex)
@@ -46,6 +53,6 @@ namespace Application.PageWeb.Handlers
                 return Result.Fail<string>($"Erreur inattendue : {ex.Message}");
             }
         }
-
     }
+
 }

@@ -45,6 +45,10 @@ namespace ServiceWebPage
                            .AllowAnyMethod()
                            .AllowAnyHeader());
             });
+ 
+       
+
+         
         }
 
         public void Configure(IApplicationBuilder app, IHostEnvironment env)
@@ -56,7 +60,8 @@ namespace ServiceWebPage
 
             app.UseHttpsRedirection();
             app.UseRouting();
-
+           
+            app.UseAuthentication();
             app.UseCors("AllowAll"); // Corrected to use "AllowAll" which is defined above
 
             app.UseEndpoints(endpoints => {

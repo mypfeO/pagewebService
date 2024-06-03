@@ -2,6 +2,8 @@
 using Domain.Reposotires;
 using Domaine.Entities;
 using FluentResults;
+using Microsoft.Extensions.Logging;
+using Microsoft.Graph;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
@@ -15,6 +17,7 @@ namespace Infrastructure.Repositories
     public class MongoRepositoryPageWeb : IRepositoryPageWeb
     {
         private readonly IMongoCollection<PageWebDTO> _pageWebCollection;
+        private readonly ILogger<PageWebDTO> _logger;
         public MongoRepositoryPageWeb(IMongoDatabase database)
         {
             _pageWebCollection = database.GetCollection<PageWebDTO>("pagewebs");
@@ -43,10 +46,7 @@ namespace Infrastructure.Repositories
         public async Task<Result> UpdatePageWebAsync(PageWebDTO pageWeb, CancellationToken cancellationToken)
         {
             var filter = Builders<PageWebDTO>.Filter.Eq(x => x.Id, pageWeb.Id);
-
-            // Explicitly specify ReplaceOptions
             var replaceOptions = new ReplaceOptions { IsUpsert = false };
-
             var result = await _pageWebCollection.ReplaceOneAsync(filter, pageWeb, replaceOptions, cancellationToken);
 
             if (result.ModifiedCount == 1)
@@ -58,6 +58,28 @@ namespace Infrastructure.Repositories
                 return Result.Fail("PageWeb not updated.");
             }
         }
+        public async Task<List<PageWebDTO>> GetPageWebsByUserId(ObjectId admin, CancellationToken cancellationToken)
+        {
+            var filter = Builders<PageWebDTO>.Filter.Eq("Admin", admin);
+            var pages = await _pageWebCollection.Find(filter).ToListAsync(cancellationToken);
+            return pages;
+
+        }
+         public async Task<Result> DeletePageWebAsync(ObjectId pageWebId, CancellationToken cancellationToken)
+        {
+            var filter = Builders<PageWebDTO>.Filter.Eq(x => x.Id, pageWebId);
+            var deleteResult = await _pageWebCollection.DeleteOneAsync(filter, cancellationToken);
+
+            if (deleteResult.DeletedCount == 1)
+            {
+                return Result.Ok();
+            }
+            else
+            {
+                return Result.Fail("PageWeb not deleted.");
+            }
+        }
+
 
     }
 }

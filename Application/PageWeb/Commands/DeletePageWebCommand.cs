@@ -1,6 +1,5 @@
 ﻿using FluentResults;
 using MediatR;
-using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace Application.PageWeb.Commands
 {
-    public class AddUserToPageWebCommand : IRequest<Result<string>>
+    public class DeletePageWebCommand : IRequest<Result>
     {
-        public ObjectId PageWebId { get; set; }
-        public ObjectId UserId { get; set; }
+        public string Id { get; set; }
     }
 }

@@ -28,9 +28,27 @@ namespace Application.Common.Validator
           .NotEmpty().WithMessage("Le lien du fichier Excel ne peut pas être vide.")
         //  .Must(Link => Uri.IsWellFormedUriString(Link, UriKind.Absolute)).WithMessage("Le lien du fichier Excel n'est pas un URI valide.");
         .Length(2, 50).WithMessage("link must be between 2 and 50 characters.");
+            RuleFor(x => x.Design)
+           .NotNull().WithMessage("Design cannot be null.")
+           .SetValidator(new DesignValidator());
         }
     }
+    public class DesignValidator : AbstractValidator<DesignSummary>
+    {
+        public DesignValidator()
+        {
+           
 
+            RuleFor(x => x.BackgroundColor)
+                .NotEmpty().WithMessage("Background color cannot be empty.")
+                .Matches("^#(?:[0-9a-fA-F]{3}){1,2}$").WithMessage("Invalid background color format.");
+
+            RuleFor(x => x.Logo)
+                .NotNull().WithMessage("Logo cannot be null.");
+            RuleFor(x => x.ProductImages).NotEmpty().WithMessage("At least one ProductImage is required.");
+
+        }
+    }
     public class FormulaireDTOValidator : AbstractValidator<FormulaireDTO>
     {
         public FormulaireDTOValidator()
@@ -69,9 +87,9 @@ namespace Application.Common.Validator
                 .NotEmpty().WithMessage("Le titre ne peut pas être vide.")
                 .MaximumLength(100).WithMessage("Le titre ne peut pas dépasser 100 caractères.");
 
-            //RuleFor(x => x.ImageLink)
-            //    .NotEmpty().WithMessage("Le lien de l'image ne peut pas être vide.")
-            //    .MaximumLength(255).WithMessage("Le lien de l'image ne peut pas dépasser 255 caractères.");
+
+          
+
         }
     }
 
@@ -85,7 +103,7 @@ namespace Application.Common.Validator
         }
     }
 
-    public class GetFormQueryValidator : AbstractValidator<GetFormQuery>
+    public class GetFormQueryValidator : AbstractValidator<GetFormulaireQuery>
     {
         public GetFormQueryValidator()
         {
@@ -93,7 +111,7 @@ namespace Application.Common.Validator
             RuleFor(query => query.FormId).NotEmpty().WithMessage("FormId must be provided.");
         }
     }
-    public class PageWebModelValidator : AbstractValidator<PageWebModel>
+  /*  public class PageWebModelValidator : AbstractValidator<PageWebModel>
     {
         public PageWebModelValidator()
         {
@@ -102,7 +120,7 @@ namespace Application.Common.Validator
                 .Length(2, 50).WithMessage("Name must be between 2 and 50 characters.");
            
         }
-    }
+    }*/
 
     //public class SubmitFormCommandValidator : AbstractValidator<SubmitFormCommand>
     //{

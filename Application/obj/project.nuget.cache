@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "CeW07535FH8xw7WwYh5LJSuGXS+xZ1PVdrGliHbVMgytZC2vnyRcBdp7pZ4dSCvVrr6a+k23D9PvB7NMhE34uQ==",
+  "dgSpecHash": "IXafSBtEUvC7bUzJ00zYJtGZcPk6plMl7nkMtOVrT3aZaqgcnsRM+OQixmQrOo7kHLjgIqhMG1Tf3uls/9tmEw==",
   "success": true,
   "projectFilePath": "C:\\Users\\ELMEHDI\\source\\repos\\AspDotNetMicroservices\\ServiceWebPage\\Application\\Application.csproj",
   "expectedPackageFiles": [
@@ -17,10 +17,14 @@
     "C:\\Users\\ELMEHDI\\.nuget\\packages\\google.apis.auth\\1.67.0\\google.apis.auth.1.67.0.nupkg.sha512",
     "C:\\Users\\ELMEHDI\\.nuget\\packages\\google.apis.core\\1.67.0\\google.apis.core.1.67.0.nupkg.sha512",
     "C:\\Users\\ELMEHDI\\.nuget\\packages\\google.apis.sheets.v4\\1.67.0.3365\\google.apis.sheets.v4.1.67.0.3365.nupkg.sha512",
+    "C:\\Users\\ELMEHDI\\.nuget\\packages\\identitymodel\\4.4.0\\identitymodel.4.4.0.nupkg.sha512",
+    "C:\\Users\\ELMEHDI\\.nuget\\packages\\identityserver4\\4.1.2\\identityserver4.4.1.2.nupkg.sha512",
+    "C:\\Users\\ELMEHDI\\.nuget\\packages\\identityserver4.storage\\4.1.2\\identityserver4.storage.4.1.2.nupkg.sha512",
     "C:\\Users\\ELMEHDI\\.nuget\\packages\\mediatr\\11.0.0\\mediatr.11.0.0.nupkg.sha512",
     "C:\\Users\\ELMEHDI\\.nuget\\packages\\mediatr.contracts\\1.0.1\\mediatr.contracts.1.0.1.nupkg.sha512",
     "C:\\Users\\ELMEHDI\\.nuget\\packages\\mediatr.extensions.microsoft.dependencyinjection\\11.1.0\\mediatr.extensions.microsoft.dependencyinjection.11.1.0.nupkg.sha512",
     "C:\\Users\\ELMEHDI\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\8.0.2\\microsoft.aspnetcore.authentication.jwtbearer.8.0.2.nupkg.sha512",
+    "C:\\Users\\ELMEHDI\\.nuget\\packages\\microsoft.aspnetcore.authentication.openidconnect\\3.1.0\\microsoft.aspnetcore.authentication.openidconnect.3.1.0.nupkg.sha512",
     "C:\\Users\\ELMEHDI\\.nuget\\packages\\microsoft.aspnetcore.mvc.versioning\\5.1.0\\microsoft.aspnetcore.mvc.versioning.5.1.0.nupkg.sha512",
     "C:\\Users\\ELMEHDI\\.nuget\\packages\\microsoft.aspnetcore.mvc.versioning.apiexplorer\\5.1.0\\microsoft.aspnetcore.mvc.versioning.apiexplorer.5.1.0.nupkg.sha512",
     "C:\\Users\\ELMEHDI\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\1.0.0\\microsoft.bcl.asyncinterfaces.1.0.0.nupkg.sha512",
@@ -112,5 +116,16 @@
     "C:\\Users\\ELMEHDI\\.nuget\\packages\\system.threading.tasks.extensions\\4.5.4\\system.threading.tasks.extensions.4.5.4.nupkg.sha512",
     "C:\\Users\\ELMEHDI\\.nuget\\packages\\zstdsharp.port\\0.7.3\\zstdsharp.port.0.7.3.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "NU1901",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Le package 'Microsoft.Identity.Client' 4.60.1 présente une vulnérabilité de gravité faible connue, https://github.com/advisories/GHSA-x674-v45j-fwxw.",
+      "libraryId": "Microsoft.Identity.Client",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    }
+  ]
 }

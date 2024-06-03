@@ -4,10 +4,12 @@ using Application.formulaire.Commands;
 using Application.formulaire.Queries;
 using Application.Models;
 using Application.PageWeb.Commands;
+using Application.PageWeb.Querys;
 using AutoMapper;
 using Domaine.Entities;
 using FluentResults;
 using FluentValidation.Results;
+using Infrastructure.Cloudery;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
@@ -22,20 +24,46 @@ namespace ServiceWebPage.Controllers
     {
         private readonly IMediator _mediator;
         private readonly IMapper _mapper;
-        private readonly ILogger _logger;
-        public PageWebController(IMediator mediator, IMapper mapper)
+        private readonly ILogger<GetWebPagesByUserIdRequest> _logger;
+        public PageWebController(IMediator mediator, IMapper mapper, ILogger<GetWebPagesByUserIdRequest> logger)
         {
             _mediator = mediator;
             _mapper = mapper;
+            _logger= logger;
+
+        }
+      
+        [HttpGet("by-user/{Admin}")]
+        public async Task<IActionResult> GetPageWebsByUserId([FromRoute] GetWebPagesByUserIdRequest request)
+        {
+            _logger.LogInformation("Received UserId: {UserId}", request.Admin);  // Ensure your controller has a logger injected if it doesn't already.
+
+            if (!ObjectId.TryParse(request.Admin, out ObjectId userObjectId))
+            {
+                _logger.LogWarning("Failed to parse ObjectId from UserId: {UserId}", request.Admin);
+                return BadRequest("Invalid user ID format.");
+            }
+
+            var query = new GetPageWebsByUserIdQuery { Admin = userObjectId };
+            try
+            {
+                var pageWebs = await _mediator.Send(query);
+                return Ok(pageWebs);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching page webs");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred: " + ex.Message);
+            }
         }
 
         [HttpPost("createWebPage")]
-        [ProducesResponseType(typeof(IDictionary<string, string>), StatusCodes.Status200OK)] 
-        [ProducesResponseType(typeof(IDictionary<string, string>), StatusCodes.Status400BadRequest)] 
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)] 
+        [ProducesResponseType(typeof(IDictionary<string, string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IDictionary<string, string>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateWebPage([FromBody] PageWebModel model, CancellationToken cancellationToken)
         {
-            var validationResult =  await new PageWebModelValidator().ValidateAsync(model, cancellationToken);
+            var validationResult = await new PageWebModelValidator().ValidateAsync(model, cancellationToken);
 
             if (!validationResult.IsValid)
             {
@@ -43,11 +71,18 @@ namespace ServiceWebPage.Controllers
                 return BadRequest(new { Errors = errors });
             }
 
-            var result = await _mediator.Send(new PageWebCreateCommand { Name = model.Name, users = model.Users }, cancellationToken);
+            var pageWebCreateCommand = new PageWebCreateCommand
+            {
+                Name = model.Name,
+                Admin = model.Admin,
+                Theme = model.Theme
+            };
+
+            var result = await _mediator.Send(pageWebCreateCommand, cancellationToken);
 
             if (result.IsSuccess)
             {
-                return Ok(new { Message = result.Value});
+                return Ok(new { Message = result.Value });
             }
             else
             {
@@ -55,101 +90,69 @@ namespace ServiceWebPage.Controllers
                 return BadRequest(new { Errors = errorMessages });
             }
         }
-        [HttpPost("createFormulaire")]
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)] 
-        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)] 
-        public async Task<IActionResult> CreateFormulaire([FromBody] FormulaireObjectModel formulaireModel, CancellationToken cancellationToken)
+        [HttpPut("updateWebPage")]
+        [ProducesResponseType(typeof(IDictionary<string, string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IDictionary<string, string>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateWebPage([FromBody] UpdatePageWeb model, CancellationToken cancellationToken)
         {
-            var validator = new FormulaireObjectModelValidator();
-            var validationResult = await validator.ValidateAsync(formulaireModel, cancellationToken);
+            var validationResult = await new UpdatePageWebModelValidator().ValidateAsync(model, cancellationToken);
+
             if (!validationResult.IsValid)
             {
-
-                var validationErrors = validationResult.Errors.Select(e => e.ErrorMessage);
-                return BadRequest(new { Errors = validationErrors });
+                var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { Errors = errors });
             }
 
-            var createFormulaireCommand = new CreateFormulaireCommand
+            var updatePageWebCommand = new UpdatePageWebCommand
             {
-                SiteWebId = formulaireModel.SiteWebId,
-                Formulaire = formulaireModel.Formulaire,
-                ExcelFileLink = formulaireModel.ExcelFileLink
+                Id = model.Id,
+                Name = model.Name,
+                Admin = model.Admin,
+                Theme = model.Theme
             };
 
-            var result = await _mediator.Send(createFormulaireCommand, cancellationToken);
+            var result = await _mediator.Send(updatePageWebCommand, cancellationToken);
 
             if (result.IsSuccess)
             {
-                 var formUrl = $"{Request.Scheme}://{Request.Host}/forms/{formulaireModel.SiteWebId}/{result.Value}/{formulaireModel.ExcelFileLink}";
-                return Ok(new { Message = "Form created successfully.", FormUrl = formUrl });
+                return Ok(new { Message = result.Value });
             }
             else
             {
-               
                 var errorMessages = result.Errors.Select(e => e.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Errors = errorMessages });
+                return BadRequest(new { Errors = errorMessages });
             }
         }
-        [HttpGet("{siteWebId}/{formId}/{excelfile}")]
-        [ProducesResponseType(typeof(FormulaireObjectModel), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetForm(string siteWebId, string formId, CancellationToken cancellationToken)
+
+
+
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeletePageWeb(string id, CancellationToken cancellationToken)
         {
-            var query = new GetFormQuery { SiteWebId = siteWebId, FormId = formId };
-
-            // La validation peut être faite ici si nécessaire, ou assurée par des Data Annotations sur GetFormQuery
-
-            var result = await _mediator.Send(query, cancellationToken);
+            var command = new DeletePageWebCommand { Id = id };
+            var result = await _mediator.Send(command, cancellationToken);
 
             if (result.IsSuccess)
             {
-                return Ok(result.Value);
+                return Ok(new { Message = "Page web deleted successfully." });
+            }
+            else if (result.Errors.Any(e => e.Message == "PageWeb not found."))
+            {
+                return NotFound(new { Errors = result.Errors.Select(e => e.Message) });
             }
             else
             {
-                if (result.Errors.Any(e => e.Message.Contains("not found")))
-                {
-                    return NotFound("The requested form was not found.");
-                }
-                else
-                {
-                    // Log des erreurs pour un diagnostic plus profond peut être fait ici
-                    return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
-                }
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Errors = result.Errors.Select(e => e.Message) });
             }
         }
-        [HttpPost("submit")]
-        public async Task<IActionResult> Submit([FromForm] SubmitFormModel model)
-        {
-           
-
-            var command = new SubmitFormCommand { Form = model };
-            await _mediator.Send(command);
-            return Ok(new { Message = "Form submitted successfully." });
-        }
 
 
-
-        [HttpPost("pages/{pageWebId}/adduser")]
-        public async Task<IActionResult> AddUserToPageWeb(string pageWebId, [FromBody] UserModel request, CancellationToken cancellationToken)
-        {
-            var command = new AddUserToPageWebCommand
-            {
-                PageWebId = new ObjectId(pageWebId),
-                UserId = new ObjectId(request.Id)
-            };
-
-            var result = await _mediator.Send(command);
-
-            if (result.IsFailed)
-                return BadRequest(result.Errors.FirstOrDefault()?.Message);
-
-            return Ok(new {Message = result.Value});
-        }
-       
 
 
     }

@@ -35,6 +35,7 @@ namespace Infrastructure
                     cloudinaryConfig["ApiKey"],
                     cloudinaryConfig["ApiSecret"]);
             });
+           
 
         }
     }
