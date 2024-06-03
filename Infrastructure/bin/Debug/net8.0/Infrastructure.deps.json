@@ -11,6 +11,7 @@
           "AutoMapper": "13.0.1",
           "BCrypt.Net-Next": "4.0.3",
           "CloudinaryDotNet": "1.26.2",
+          "Domaine": "1.0.0",
           "FluentResults": "3.15.2",
           "Google.Apis.Auth": "1.67.0",
           "Google.Apis.Sheets.v4": "1.67.0.3365",
@@ -22,8 +23,7 @@
           "Microsoft.Graph": "4.13.0",
           "Microsoft.Identity.Client": "4.60.1",
           "MongoDB.Driver": "2.24.0",
-          "System.IdentityModel.Tokens.Jwt": "7.4.1",
-          "Domaine": "1.0.0.0"
+          "System.IdentityModel.Tokens.Jwt": "7.4.1"
         },
         "runtime": {
           "Infrastructure.dll": {}
@@ -993,12 +993,26 @@
           }
         }
       },
-      "Domaine/1.0.0.0": {
+      "Domaine/1.0.0": {
+        "dependencies": {
+          "AutoMapper": "13.0.1",
+          "BCrypt.Net-Next": "4.0.3",
+          "CloudinaryDotNet": "1.26.2",
+          "FluentResults": "3.15.2",
+          "Google.Apis.Auth": "1.67.0",
+          "Google.Apis.Sheets.v4": "1.67.0.3365",
+          "IdentityServer4": "4.1.2",
+          "MediatR.Extensions.Microsoft.DependencyInjection": "11.1.0",
+          "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.2",
+          "Microsoft.AspNetCore.Mvc.Versioning": "5.1.0",
+          "Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer": "5.1.0",
+          "Microsoft.Graph": "4.13.0",
+          "Microsoft.Identity.Client": "4.60.1",
+          "MongoDB.Driver": "2.24.0",
+          "System.IdentityModel.Tokens.Jwt": "7.4.1"
+        },
         "runtime": {
-          "Domaine.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
-          }
+          "Domaine.dll": {}
         }
       }
     }
@@ -1779,8 +1793,8 @@
       "path": "zstdsharp.port/0.7.3",
       "hashPath": "zstdsharp.port.0.7.3.nupkg.sha512"
     },
-    "Domaine/1.0.0.0": {
-      "type": "reference",
+    "Domaine/1.0.0": {
+      "type": "project",
       "serviceable": false,
       "sha512": ""
     }
