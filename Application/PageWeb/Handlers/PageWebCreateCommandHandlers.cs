@@ -18,8 +18,9 @@ namespace Application.PageWeb.Handlers
         private readonly IRepositoryPageWeb _repositoryPageWeb;
         public PageWebCreateCommandHandlers(IRepositoryPageWeb repositoryPageWeb)
         {
-            _repositoryPageWeb=repositoryPageWeb;
+            _repositoryPageWeb = repositoryPageWeb;
         }
+
         public async Task<Result<string>> Handle(PageWebCreateCommand request, CancellationToken cancellationToken)
         {
             if (!ObjectId.TryParse(request.Admin, out ObjectId objectAdmin))
@@ -33,7 +34,7 @@ namespace Application.PageWeb.Handlers
                 {
                     Name = request.Name,
                     Admin = objectAdmin,
-                    Users = request.users,  // Ensure users from request are properly assigned
+                    Theme = request.Theme  // Add this line for Theme
                 };
 
                 var result = await _repositoryPageWeb.AddPageWebAsync(newPageWeb, cancellationToken);
@@ -52,7 +53,6 @@ namespace Application.PageWeb.Handlers
                 return Result.Fail<string>($"Erreur inattendue : {ex.Message}");
             }
         }
-
-
     }
+
 }

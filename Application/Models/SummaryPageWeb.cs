@@ -10,5 +10,6 @@ namespace Application.Models
     {
         public string Id { get; set; }
         public string Name { get; set; }
+        public string Theme { get; set; }  // New field for theme
     }
 }

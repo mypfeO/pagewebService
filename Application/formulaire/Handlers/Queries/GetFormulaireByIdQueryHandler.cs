@@ -1,7 +1,9 @@
 ﻿using Application.formulaire.Queries;
+using Application.Models;
 using Domaine.Entities;
 using Domaine.Reposotires;
 using MediatR;
+using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +23,8 @@ namespace Application.formulaire.Handlers.Queries
 
         public async Task<FormulaireObjectDTO> Handle(GetFormulaireByIdQuery request, CancellationToken cancellationToken)
         {
-            return await _repositoryFormulaire.GetFormulaireByIdAsync(request.FormulaireId, cancellationToken);
+            var objectId = ObjectId.Parse(request.FormulaireId);
+            return await _repositoryFormulaire.GetFormulaireByIdAsync(objectId, cancellationToken);
         }
     }
 

@@ -32,16 +32,7 @@ namespace ServiceWebPage.Controllers
             _logger= logger;
 
         }
-        [HttpGet("by-webid/{siteWebId}")]
-        public async Task<IActionResult> GetFormBySiteWebId(string siteWebId)
-        {
-            var query = new GetFormsBySiteWebIdQuery { SiteWebId = siteWebId };
-            var result = await _mediator.Send(query);
-            if (result == null)
-                return NotFound();
-
-            return Ok(result);
-        }
+      
         [HttpGet("by-user/{Admin}")]
         public async Task<IActionResult> GetPageWebsByUserId([FromRoute] GetWebPagesByUserIdRequest request)
         {
@@ -66,14 +57,13 @@ namespace ServiceWebPage.Controllers
             }
         }
 
-
         [HttpPost("createWebPage")]
-        [ProducesResponseType(typeof(IDictionary<string, string>), StatusCodes.Status200OK)] 
-        [ProducesResponseType(typeof(IDictionary<string, string>), StatusCodes.Status400BadRequest)] 
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)] 
+        [ProducesResponseType(typeof(IDictionary<string, string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IDictionary<string, string>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateWebPage([FromBody] PageWebModel model, CancellationToken cancellationToken)
         {
-            var validationResult =  await new PageWebModelValidator().ValidateAsync(model, cancellationToken);
+            var validationResult = await new PageWebModelValidator().ValidateAsync(model, cancellationToken);
 
             if (!validationResult.IsValid)
             {
@@ -81,11 +71,52 @@ namespace ServiceWebPage.Controllers
                 return BadRequest(new { Errors = errors });
             }
 
-            var result = await _mediator.Send(new PageWebCreateCommand { Name = model.Name,Admin=model.Admin, users = model.Users }, cancellationToken);
+            var pageWebCreateCommand = new PageWebCreateCommand
+            {
+                Name = model.Name,
+                Admin = model.Admin,
+                Theme = model.Theme
+            };
+
+            var result = await _mediator.Send(pageWebCreateCommand, cancellationToken);
 
             if (result.IsSuccess)
             {
-                return Ok(new { Message = result.Value});
+                return Ok(new { Message = result.Value });
+            }
+            else
+            {
+                var errorMessages = result.Errors.Select(e => e.Message);
+                return BadRequest(new { Errors = errorMessages });
+            }
+        }
+        [HttpPut("updateWebPage")]
+        [ProducesResponseType(typeof(IDictionary<string, string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IDictionary<string, string>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateWebPage([FromBody] UpdatePageWeb model, CancellationToken cancellationToken)
+        {
+            var validationResult = await new UpdatePageWebModelValidator().ValidateAsync(model, cancellationToken);
+
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { Errors = errors });
+            }
+
+            var updatePageWebCommand = new UpdatePageWebCommand
+            {
+                Id = model.Id,
+                Name = model.Name,
+                Admin = model.Admin,
+                Theme = model.Theme
+            };
+
+            var result = await _mediator.Send(updatePageWebCommand, cancellationToken);
+
+            if (result.IsSuccess)
+            {
+                return Ok(new { Message = result.Value });
             }
             else
             {
@@ -94,92 +125,34 @@ namespace ServiceWebPage.Controllers
             }
         }
 
-        [HttpPost("createFormulaire")]
-        public async Task<IActionResult> CreateFormulaire([FromForm] FormulaireObjectModel formulaireModel, CancellationToken cancellationToken)
+
+
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeletePageWeb(string id, CancellationToken cancellationToken)
         {
-            Console.WriteLine("Received FormulaireObjectModel: ");
-            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(formulaireModel));
-
-            var validator = new FormulaireObjectModelValidator();
-            var validationResult = await validator.ValidateAsync(formulaireModel, cancellationToken);
-            if (!validationResult.IsValid)
-            {
-                var validationErrors = validationResult.Errors.Select(e => e.ErrorMessage);
-                return BadRequest(new { Errors = validationErrors });
-            }
-
-            var createFormulaireCommand = new CreateFormulaireCommand
-            {
-                SiteWebId = formulaireModel.SiteWebId,
-                Formulaire = formulaireModel.Formulaire,
-                ExcelFileLink = formulaireModel.ExcelFileLink,
-                ProductImages = formulaireModel.Design.ProductImages,
-                Logo = formulaireModel.Design.Logo,
-                BackgroundColor = formulaireModel.Design.BackgroundColor
-            };
-
-            var result = await _mediator.Send(createFormulaireCommand, cancellationToken);
+            var command = new DeletePageWebCommand { Id = id };
+            var result = await _mediator.Send(command, cancellationToken);
 
             if (result.IsSuccess)
             {
-                var formUrl = $"http://localhost:5173/forms/{formulaireModel.SiteWebId}/{result.Value}";
-                return Ok(new { Message = "Form created successfully.", FormUrl = formUrl });
+                return Ok(new { Message = "Page web deleted successfully." });
+            }
+            else if (result.Errors.Any(e => e.Message == "PageWeb not found."))
+            {
+                return NotFound(new { Errors = result.Errors.Select(e => e.Message) });
             }
             else
             {
-                var errorMessages = result.Errors.Select(e => e.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Errors = errorMessages });
-            }
-        }
-        [HttpGet("{siteWebId}/{formId}")]
-        [ProducesResponseType(typeof(GetFormsById), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetFormulaire(string siteWebId, string formId, CancellationToken cancellationToken)
-        {
-            var query = new GetFormulaireQuery { SiteWebId = siteWebId, FormId = formId };
-            var result = await _mediator.Send(query, cancellationToken);
-
-            if (result.IsSuccess)
-            {
-                return Ok(result.Value);
-            }
-            else
-            {
-                var errorMessages = result.Errors.Select(e => e.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Errors = errorMessages });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Errors = result.Errors.Select(e => e.Message) });
             }
         }
 
-        [HttpPost("submit")]
-        public async Task<IActionResult> Submit([FromForm] SubmitFormModel model)
-        {
-           
 
-            var command = new SubmitFormCommand { Form = model };
-            await _mediator.Send(command);
-            return Ok(new { Message = "Form submitted successfully." });
-        }
-
-
-
-        [HttpPost("pages/{pageWebId}/adduser")]
-        public async Task<IActionResult> AddUserToPageWeb(string pageWebId, [FromBody] UserModel request, CancellationToken cancellationToken)
-        {
-            var command = new AddUserToPageWebCommand
-            {
-                PageWebId = new ObjectId(pageWebId),
-                UserId = new ObjectId(request.Id)
-            };
-
-            var result = await _mediator.Send(command);
-
-            if (result.IsFailed)
-                return BadRequest(result.Errors.FirstOrDefault()?.Message);
-
-            return Ok(new {Message = result.Value});
-        }
-       
 
 
     }

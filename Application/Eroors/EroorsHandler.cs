@@ -29,7 +29,10 @@ namespace Application.Eroors
             string errorMessage = $"Erreur : L'ID est inférieur à 0. Traitement spécifique à implémenter.";
             return Result.Fail(errorMessage);
         }
-
+        public static Result HandleGenericError(string errorMessage)
+        {
+            return Result.Fail(errorMessage);
+        }
         public static Result<T> HandleGenericError<T>(string errorMessage)
         {
             return Result.Fail<T>(errorMessage);

@@ -28,19 +28,14 @@ namespace Application.formulaire.Handlers.Queries
 
         public async Task<Result<List<FormulaireObjectModel>>> Handle(GetFormsBySiteWebIdQuery request, CancellationToken cancellationToken)
         {
-            var validator = new GetFormsBySiteWebIdQueryValidator();
-            var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
-            if (!validationResult.IsValid)
+            if (!ObjectId.TryParse(request.SiteWebId, out ObjectId siteWebObjectId))
             {
-                var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return EroorsHandler.HandleGenericError<List<FormulaireObjectModel>>(string.Join(", ", errors));
+                return EroorsHandler.HandleGenericError<List<FormulaireObjectModel>>("Invalid SiteWebId format.");
             }
 
             try
             {
-                var siteWebId = ObjectId.Parse(request.SiteWebId);
-                var formulaires = await _repository.GetFormsBySiteWebIdAsync(siteWebId, cancellationToken);
+                var formulaires = await _repository.GetFormsBySiteWebIdAsync(siteWebObjectId, cancellationToken);
 
                 if (formulaires == null || !formulaires.Any())
                 {

@@ -1,6 +1,7 @@
 ﻿using Application.Models;
 using AutoMapper;
 using Domaine.Entities;
+using MongoDB.Bson;
 
 namespace Application.Common.Mappings
 {
@@ -10,8 +11,31 @@ namespace Application.Common.Mappings
         {
             // Mapping for FormulaireObjectDTO to FormulaireObjectModel
             CreateMap<FormulaireObjectDTO, FormulaireObjectModel>()
-                .ForMember(dest => dest.SiteWebId, opt => opt.MapFrom(src => src.SiteWebId.ToString()))
-                .ForMember(dest => dest.ExcelFileLink, opt => opt.MapFrom(src => src.ExcelFileLink));
+               .ForMember(dest => dest.SiteWebId, opt => opt.MapFrom(src => src.SiteWebId.ToString()))
+                .ForMember(dest => dest.ExcelFileLink, opt => opt.MapFrom(src => src.ExcelFileLink))
+                .ForMember(dest => dest.Design, opt => opt.MapFrom(src => new DesignSummary
+                {
+                    ProductImages = src.Design.ProductImages,
+                    BackgroundColor = src.Design.BackgroundColor,
+                    Logo = src.Design.Logo
+                }));
+            // Mapping for FormulaireObjectModel to FormulaireObjectDTO
+            CreateMap<FormulaireObjectModel, FormulaireObjectDTO>()
+             .ForMember(dest => dest.SiteWebId, opt => opt.MapFrom(src => src.SiteWebId.ToString()))
+                .ForMember(dest => dest.ExcelFileLink, opt => opt.MapFrom(src => src.ExcelFileLink))
+                .ForMember(dest => dest.Design, opt => opt.MapFrom(src => new DesignSummary
+                {
+                    ProductImages = src.Design.ProductImages,
+                    BackgroundColor = src.Design.BackgroundColor,
+                    Logo = src.Design.Logo
+                }));
+
+
+
+
+
+
+
             // Mapping for FormulaireObjectDTO to GetFormsById
             CreateMap<FormulaireObjectDTO, GetFormsById>()
                 .ForMember(dest => dest.SiteWebId, opt => opt.MapFrom(src => src.SiteWebId.ToString()))
@@ -36,11 +60,12 @@ namespace Application.Common.Mappings
                 .ReverseMap();
 
             // Bidirectional mapping for BodyItem and BodyItemDTO
-            CreateMap<BodyItem, BodyItemDTO>()
-                .ForMember(dest => dest.Titre, opt => opt.MapFrom(src => src.Titre))
-                .ForMember(dest => dest.ChampText, opt => opt.MapFrom(src => src.ChampText))
-                .ForMember(dest => dest.ImageLink, opt => opt.MapFrom(src => src.ImageLink))
-                .ReverseMap();
+            CreateMap<BodyItemDTO, BodyItem>()
+               .ForMember(dest => dest.Titre, opt => opt.MapFrom(src => src.Titre))
+               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+               .ForMember(dest => dest.RespenseText, opt => opt.MapFrom(src => src.RespenseText))
+               .ForMember(dest => dest.Required, opt => opt.MapFrom(src => src.Required))
+               .ReverseMap();
 
             // Bidirectional mapping for Footer and FooterDTO
             CreateMap<Footer, FooterDTO>()

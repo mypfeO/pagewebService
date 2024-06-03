@@ -10,8 +10,8 @@ namespace Application.Models
 
     public class Design
     {
-       public List<IFormFile> ProductImages { get; set; }
+       public List<string> ProductImages { get; set; }
         public string BackgroundColor { get; set; }
-        public IFormFile Logo { get; set; }
+        public string Logo { get; set; }
     }
 }

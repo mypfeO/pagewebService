@@ -46,10 +46,7 @@ namespace Infrastructure.Repositories
         public async Task<Result> UpdatePageWebAsync(PageWebDTO pageWeb, CancellationToken cancellationToken)
         {
             var filter = Builders<PageWebDTO>.Filter.Eq(x => x.Id, pageWeb.Id);
-
-            // Explicitly specify ReplaceOptions
             var replaceOptions = new ReplaceOptions { IsUpsert = false };
-
             var result = await _pageWebCollection.ReplaceOneAsync(filter, pageWeb, replaceOptions, cancellationToken);
 
             if (result.ModifiedCount == 1)
@@ -67,6 +64,20 @@ namespace Infrastructure.Repositories
             var pages = await _pageWebCollection.Find(filter).ToListAsync(cancellationToken);
             return pages;
 
+        }
+         public async Task<Result> DeletePageWebAsync(ObjectId pageWebId, CancellationToken cancellationToken)
+        {
+            var filter = Builders<PageWebDTO>.Filter.Eq(x => x.Id, pageWebId);
+            var deleteResult = await _pageWebCollection.DeleteOneAsync(filter, cancellationToken);
+
+            if (deleteResult.DeletedCount == 1)
+            {
+                return Result.Ok();
+            }
+            else
+            {
+                return Result.Fail("PageWeb not deleted.");
+            }
         }
 
 

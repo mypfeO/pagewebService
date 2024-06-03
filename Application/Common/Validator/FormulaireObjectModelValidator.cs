@@ -33,7 +33,7 @@ namespace Application.Common.Validator
            .SetValidator(new DesignValidator());
         }
     }
-    public class DesignValidator : AbstractValidator<Design>
+    public class DesignValidator : AbstractValidator<DesignSummary>
     {
         public DesignValidator()
         {
@@ -111,7 +111,7 @@ namespace Application.Common.Validator
             RuleFor(query => query.FormId).NotEmpty().WithMessage("FormId must be provided.");
         }
     }
-    public class PageWebModelValidator : AbstractValidator<PageWebModel>
+  /*  public class PageWebModelValidator : AbstractValidator<PageWebModel>
     {
         public PageWebModelValidator()
         {
@@ -120,7 +120,7 @@ namespace Application.Common.Validator
                 .Length(2, 50).WithMessage("Name must be between 2 and 50 characters.");
            
         }
-    }
+    }*/
 
     //public class SubmitFormCommandValidator : AbstractValidator<SubmitFormCommand>
     //{

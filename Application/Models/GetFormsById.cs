@@ -12,9 +12,9 @@ namespace Application.Models
     public class GetFormsById : IMapFrom<FormulaireObjectDTO>
     {
         public string SiteWebId { get; set; }
-    public Formulaire Formulaire { get; set; }
-    public string ExcelFileLink { get; set; }
-    public DesignSummary Design { get; set; }
+          public Formulaire Formulaire { get; set; }
+        public string ExcelFileLink { get; set; }
+        public DesignSummary Design { get; set; }
 
     public void Mapping(Profile profile)
     {

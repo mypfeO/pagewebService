@@ -24,11 +24,12 @@ namespace Application.PageWeb.Handlers.Querys
        public async Task<List<SummaryPageWeb>> Handle(GetPageWebsByUserIdQuery request, CancellationToken cancellationToken)
     {
         var dtos = await _repositoryPageWeb.GetPageWebsByUserId(request.Admin, cancellationToken);
-        var models = dtos.Select(dto => new SummaryPageWeb
-        {
-            Id = dto.Id.ToString(),  // Assuming dto.Id is already a string.
-            Name = dto.Name
-        }).ToList();
+            var models = dtos.Select(dto => new SummaryPageWeb
+            {
+                Id = dto.Id.ToString(),  // Assuming dto.Id is already a string.
+                Name = dto.Name,
+                Theme=dto.Theme,
+            }).ToList();
 
         return models;
     }

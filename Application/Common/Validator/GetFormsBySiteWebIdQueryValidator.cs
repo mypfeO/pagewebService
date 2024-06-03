@@ -1,5 +1,6 @@
 ﻿using Application.formulaire.Queries;
 using FluentValidation;
+using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,9 @@ namespace Application.Common.Validator
     {
         public GetFormsBySiteWebIdQueryValidator()
         {
-            RuleFor(query => query.SiteWebId).NotEmpty().WithMessage("SiteWebId must be provided.");
+            RuleFor(query => query.SiteWebId)
+                .NotEmpty().WithMessage("SiteWebId must be provided.")
+                .Must(admin => ObjectId.TryParse(admin, out _)).WithMessage("Invalid SiteWebId format.");
         }
     }
 

@@ -1,36 +1,53 @@
 ﻿using Application.Common.Mappings;
 using Domaine.Entities;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-
+using Newtonsoft.Json;
 namespace Application.Models
 {
-    public class Formulaire : IMapFrom<FormulaireDTO>
+    public class Formulaire
     {
-        public Head? Head { get; set; }
-        public List<BodyItem>? Body { get; set; }
-        public List<string>? Bodies { get; set; }
-        public Footer? Footer { get; set; }
-        public List<IFormFile> ProductImages { get; set; }
+        public Head Head { get; set; }
+        public List<BodyItem> Body { get; set; } = new List<BodyItem>();
+        public Footer Footer { get; set; }
     }
+
 
     public class Head : IMapFrom<HeadDTO>
     {
         public string Title { get; set; } = string.Empty;
     }
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum InputType
+    {
+        [EnumMember(Value = "Text")]
+        Text,
 
-    public class BodyItem : IMapFrom<BodyItemDTO> 
+        [EnumMember(Value = "Image")]
+        Image,
+
+        [EnumMember(Value = "File")]
+        File,
+
+        [EnumMember(Value = "Date")]
+        Date,
+
+        // Add other types as needed
+    }
+
+
+    public class BodyItem : IMapFrom<BodyItemDTO>
     {
         public string Titre { get; set; } = string.Empty;
-        public bool ChampText { get; set; } = false;
-        public bool ImageLink { get; set; } = false;
-
-        public bool required { get; set; } = false;
-
+        public string Type { get; set; }
+        public string RespenseText { get; set; } = string.Empty;
+        public bool Required { get; set; } = false;
     }
 
     public class Footer : IMapFrom<FooterDTO> 
