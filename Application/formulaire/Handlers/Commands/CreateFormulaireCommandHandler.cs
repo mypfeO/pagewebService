@@ -73,17 +73,21 @@ namespace Application.formulaire.Handlers.Commands
                 {
                     Head = _mapper.Map<HeadDTO>(request.Formulaire.Head),
                     Body = await MapBodyItems(request.Formulaire.Body),
-                    Footer = _mapper.Map<FooterDTO>(request.Formulaire.Footer)
+                    Footer = request.Formulaire.Footer.Select(f => new FooterItemDTO
+                    {
+                        Titre = f.Titre,
+                        LinkNextForm = f.LinkNextForm
+                    }).ToList() // Ensure Footer is a list
                 };
-
+              
                 var headersToWrite = formulaireDTO.Body
                     .Where(b => b.Type != "image" && b.Type != "video")
                     .Select(b => b.Titre)
                     .ToList();
 
                 // Update Google Sheets file with the titles from the Body field
-                var spreadsheetId = request.ExcelFileLink; // Assuming this is the correct Spreadsheet ID
-                var range = "Feuille 1!A1:Z1"; // Writing headers in the first row
+                var spreadsheetId = request.ExcelFileLink;
+                var range = "Feuille 1!A1:Z1";
                 await WriteHeadersToGoogleSheet(spreadsheetId, range, headersToWrite, cancellationToken);
 
                 // Upload images in the design to Cloudinary
@@ -99,6 +103,7 @@ namespace Application.formulaire.Handlers.Commands
                     SiteWebId = siteWebObjectId,
                     Formulaire = formulaireDTO,
                     ExcelFileLink = request.ExcelFileLink,
+                    CodeBoard=request.CodeBoard,
                     Design = designDTO
                 };
 
@@ -118,6 +123,7 @@ namespace Application.formulaire.Handlers.Commands
                 return EroorsHandler.HandleGenericError<string>($"Unexpected error: {ex.Message}");
             }
         }
+
 
         private async Task<List<BodyItemDTO>> MapBodyItems(List<BodyItem> bodyItems)
         {

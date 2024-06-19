@@ -21,7 +21,7 @@ namespace ServiceWebPage.Controllers
         }
 
         [HttpGet("getFormsBySiteWebId/{siteWebId}")]
-        [ProducesResponseType(typeof(List<FormulaireObjectModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(IDictionary<string, string>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -41,7 +41,17 @@ namespace ServiceWebPage.Controllers
 
             if (result.IsSuccess)
             {
-                return Ok(result.Value);
+                var response = result.Value.Select(f => new
+                {
+                    _id = f._id,
+                    SiteWebId = f.SiteWebId,
+                    Formulaire = f.Formulaire,
+                    ExcelFileLink = f.ExcelFileLink,
+                    CodeBoard=f.CodeBoard,
+                    Design = f.Design
+                }).ToList();
+
+                return Ok(response);
             }
             else if (result.Errors.Any(e => e.Message == "No forms found for the provided SiteWebId"))
             {
@@ -69,6 +79,7 @@ namespace ServiceWebPage.Controllers
                 SiteWebId = formulaireModel.SiteWebId,
                 Formulaire = formulaireModel.Formulaire,
                 ExcelFileLink = formulaireModel.ExcelFileLink,
+                CodeBoard= formulaireModel.CodeBoard,
                 Design = formulaireModel.Design
             };
 
@@ -85,6 +96,7 @@ namespace ServiceWebPage.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Errors = errorMessages });
             }
         }
+
 
 
         [HttpGet("{siteWebId}/{formId}")]
@@ -107,14 +119,25 @@ namespace ServiceWebPage.Controllers
             }
         }
         [HttpPost("submit")]
-        public async Task<IActionResult> Submit([FromForm] SubmitFormModel model)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IDictionary<string, string>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(IDictionary<string, string>))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(IDictionary<string, string>))]
+        public async Task<IActionResult> Submit([FromBody] SubmitFormModel model)
         {
+            var validator = new SubmitFormModelValidator();
+            var validationResult = await validator.ValidateAsync(model);
 
+            if (!validationResult.IsValid)
+            {
+                var validationErrors = validationResult.Errors.Select(e => e.ErrorMessage);
+                return BadRequest(new { Errors = validationErrors });
+            }
 
             var command = new SubmitFormCommand { Form = model };
             await _mediator.Send(command);
             return Ok(new { Message = "Form submitted successfully." });
         }
+
         [HttpPut("updateFormulaire/{id}")]
         [ProducesResponseType(typeof(IDictionary<string, string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(IDictionary<string, string>), StatusCodes.Status400BadRequest)]
@@ -136,9 +159,11 @@ namespace ServiceWebPage.Controllers
                 SiteWebId = formulaireModel.SiteWebId,
                 Formulaire = formulaireModel.Formulaire,
                 ExcelFileLink = formulaireModel.ExcelFileLink,
+                CodeBoard= formulaireModel.CodeBoard,
                 ProductImages = formulaireModel.Design.ProductImages, // Base64 strings
                 Logo = formulaireModel.Design.Logo, // Base64 string
                 BackgroundColor = formulaireModel.Design.BackgroundColor
+
             };
 
             var result = await _mediator.Send(updateFormulaireCommand, cancellationToken);

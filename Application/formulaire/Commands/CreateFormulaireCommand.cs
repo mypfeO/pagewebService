@@ -16,6 +16,7 @@ namespace Application.formulaire.Commands
         public string SiteWebId { get; set; } = string.Empty;
         public Formulaire Formulaire { get; set; } = new();
         public string ExcelFileLink { get; set; } = string.Empty;
+        public string CodeBoard { get; set; } = string.Empty;
         public DesignSummary Design { get; set; }
     }
 }

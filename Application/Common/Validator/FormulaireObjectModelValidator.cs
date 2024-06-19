@@ -31,29 +31,34 @@ namespace Application.Common.Validator
             RuleFor(x => x.Design)
            .NotNull().WithMessage("Design cannot be null.")
            .SetValidator(new DesignValidator());
+            RuleFor(x => x.CodeBoard) // Add validation for the new field
+          .NotEmpty().WithMessage("CodeBoard cannot be empty.")
+          .MaximumLength(50).WithMessage("CodeBoard must be 50 characters or less.");
+
         }
     }
+
     public class DesignValidator : AbstractValidator<DesignSummary>
     {
         public DesignValidator()
         {
-           
-
             RuleFor(x => x.BackgroundColor)
                 .NotEmpty().WithMessage("Background color cannot be empty.")
                 .Matches("^#(?:[0-9a-fA-F]{3}){1,2}$").WithMessage("Invalid background color format.");
 
             RuleFor(x => x.Logo)
                 .NotNull().WithMessage("Logo cannot be null.");
-            RuleFor(x => x.ProductImages).NotEmpty().WithMessage("At least one ProductImage is required.");
 
+            RuleFor(x => x.ProductImages)
+                .NotEmpty().WithMessage("At least one ProductImage is required.");
         }
     }
+
     public class FormulaireDTOValidator : AbstractValidator<FormulaireDTO>
     {
         public FormulaireDTOValidator()
         {
-            _ = RuleFor(x => x.Head)
+            RuleFor(x => x.Head)
                 .NotNull().WithMessage("Le champ Head ne peut pas être null.")
                 .SetValidator(new HeadDTOValidator());
 
@@ -61,14 +66,15 @@ namespace Application.Common.Validator
                 .NotEmpty().WithMessage("La liste Body ne peut pas être vide.")
                 .ForEach(bodyItem => bodyItem.SetValidator(new BodyItemDTOValidator()));
 
+            // Validate Footer's Items directly
             RuleFor(x => x.Footer)
-                .NotNull().WithMessage("Le champ Footer ne peut pas être null.")
-                .SetValidator(new FooterDTOValidator());
-          
+                .NotNull().WithMessage("Le champ Footer ne peut pas être null.");
+
+            RuleForEach(x => x.Footer)
+                .SetValidator(new FooterItemDTOValidator()); // Validate each FooterItemDTO
         }
     }
 
-    // Les autres classes de validation restent inchangées
     public class HeadDTOValidator : AbstractValidator<HeadDTO>
     {
         public HeadDTOValidator()
@@ -87,19 +93,29 @@ namespace Application.Common.Validator
                 .NotEmpty().WithMessage("Le titre ne peut pas être vide.")
                 .MaximumLength(100).WithMessage("Le titre ne peut pas dépasser 100 caractères.");
 
+            RuleFor(x => x.Type)
+                .NotEmpty().WithMessage("Le type ne peut pas être vide.");
 
-          
-
+            // Additional validation based on the type
+            When(x => x.Type == "image" || x.Type == "video", () =>
+            {
+                RuleFor(x => x.RespenseText)
+                    .NotEmpty().WithMessage("Le lien de la réponse ne peut pas être vide.");
+            });
         }
     }
 
-    public class FooterDTOValidator : AbstractValidator<FooterDTO>
+    public class FooterItemDTOValidator : AbstractValidator<FooterItemDTO>
     {
-        public FooterDTOValidator()
+        public FooterItemDTOValidator()
         {
             RuleFor(x => x.Titre)
                 .NotEmpty().WithMessage("Le titre ne peut pas être vide.")
                 .MaximumLength(100).WithMessage("Le titre ne peut pas dépasser 100 caractères.");
+
+            RuleFor(x => x.LinkNextForm)
+                .NotEmpty().WithMessage("Le lien ne peut pas être vide.")
+                .MaximumLength(200).WithMessage("Le lien ne peut pas dépasser 200 caractères.");
         }
     }
 
@@ -107,46 +123,11 @@ namespace Application.Common.Validator
     {
         public GetFormQueryValidator()
         {
-            RuleFor(query => query.SiteWebId).NotEmpty().WithMessage("SiteWebId must be provided.");
-            RuleFor(query => query.FormId).NotEmpty().WithMessage("FormId must be provided.");
+            RuleFor(query => query.SiteWebId)
+                .NotEmpty().WithMessage("SiteWebId must be provided.");
+
+            RuleFor(query => query.FormId)
+                .NotEmpty().WithMessage("FormId must be provided.");
         }
     }
-  /*  public class PageWebModelValidator : AbstractValidator<PageWebModel>
-    {
-        public PageWebModelValidator()
-        {
-            RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("Name is required.")
-                .Length(2, 50).WithMessage("Name must be between 2 and 50 characters.");
-           
-        }
-    }*/
-
-    //public class SubmitFormCommandValidator : AbstractValidator<SubmitFormCommand>
-    //{
-    //    public SubmitFormCommandValidator()
-    //    {
-    //        RuleFor(command => command.SiteWebId)
-    //            .Must(BeAValidObjectId).WithMessage("Invalid SiteWebId format.");
-
-    //        RuleFor(command => command.FormId)
-    //            .Must(BeAValidObjectId).WithMessage("Invalid FormId format.");
-
-    //        RuleFor(command => command.UserId)
-    //            .Must(BeAValidObjectId).WithMessage("Invalid UserId format.");
-
-
-    //    }
-
-    //    private bool BeAValidObjectId(string id) => ObjectId.TryParse(id, out _);
-    //}
-    //public class FormFieldValidator : AbstractValidator<FormField>
-    //{
-    //    public FormFieldValidator()
-    //    {
-    //        RuleFor(x => x.RespenseText).NotEmpty().When(x => !x.ImageLink);
-    //        RuleFor(x => x.RespenseFile).NotNull().When(x => x.ImageLink);
-    //    }
-    //}
-
 }

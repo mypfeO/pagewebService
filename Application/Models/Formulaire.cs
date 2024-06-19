@@ -15,7 +15,7 @@ namespace Application.Models
     {
         public Head Head { get; set; }
         public List<BodyItem> Body { get; set; } = new List<BodyItem>();
-        public Footer Footer { get; set; }
+        public List<FooterItem> Footer { get; set; } = new List<FooterItem>();
     }
 
 
@@ -50,10 +50,13 @@ namespace Application.Models
         public bool Required { get; set; } = false;
     }
 
-    public class Footer : IMapFrom<FooterDTO> 
+    public class FooterItem
     {
         public string Titre { get; set; } = string.Empty;
+        public string LinkNextForm { get; set; } = string.Empty;
     }
+
+
 
 
 }

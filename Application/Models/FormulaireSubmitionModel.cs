@@ -18,10 +18,11 @@ namespace Application.Models
     public class FormFieldModel
     {
         public string Titre { get; set; }
-        public bool ImageLink { get; set; }
-        public IFormFile? RespenseFile { get; set; } = null;
+        public string Type { get; set; }
+        public string? RespenseBase64 { get; set; } = string.Empty; // For base64 encoded files
         public string? RespenseText { get; set; } = string.Empty;
     }
+
 
 
 

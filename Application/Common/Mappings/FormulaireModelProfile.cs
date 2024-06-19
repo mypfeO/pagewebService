@@ -13,6 +13,8 @@ namespace Application.Common.Mappings
             CreateMap<FormulaireObjectDTO, FormulaireObjectModel>()
                .ForMember(dest => dest.SiteWebId, opt => opt.MapFrom(src => src.SiteWebId.ToString()))
                 .ForMember(dest => dest.ExcelFileLink, opt => opt.MapFrom(src => src.ExcelFileLink))
+                 .ForMember(dest => dest.CodeBoard, opt => opt.MapFrom(src => src.CodeBoard)) // Add this line
+
                 .ForMember(dest => dest.Design, opt => opt.MapFrom(src => new DesignSummary
                 {
                     ProductImages = src.Design.ProductImages,
@@ -23,6 +25,8 @@ namespace Application.Common.Mappings
             CreateMap<FormulaireObjectModel, FormulaireObjectDTO>()
              .ForMember(dest => dest.SiteWebId, opt => opt.MapFrom(src => src.SiteWebId.ToString()))
                 .ForMember(dest => dest.ExcelFileLink, opt => opt.MapFrom(src => src.ExcelFileLink))
+                  .ForMember(dest => dest.CodeBoard, opt => opt.MapFrom(src => src.CodeBoard)) // Add this line
+
                 .ForMember(dest => dest.Design, opt => opt.MapFrom(src => new DesignSummary
                 {
                     ProductImages = src.Design.ProductImages,
@@ -40,6 +44,7 @@ namespace Application.Common.Mappings
             CreateMap<FormulaireObjectDTO, GetFormsById>()
                 .ForMember(dest => dest.SiteWebId, opt => opt.MapFrom(src => src.SiteWebId.ToString()))
                 .ForMember(dest => dest.ExcelFileLink, opt => opt.MapFrom(src => src.ExcelFileLink))
+                .ForMember(dest => dest.CodeBoard, opt => opt.MapFrom(src => src.CodeBoard))
                 .ForMember(dest => dest.Design, opt => opt.MapFrom(src => new DesignSummary
                 {
                     ProductImages = src.Design.ProductImages,
@@ -68,9 +73,21 @@ namespace Application.Common.Mappings
                .ReverseMap();
 
             // Bidirectional mapping for Footer and FooterDTO
-            CreateMap<Footer, FooterDTO>()
-                .ForMember(dest => dest.Titre, opt => opt.MapFrom(src => src.Titre))
-                .ReverseMap();
-        }
+
+
+     
+                // Other mappings
+        CreateMap<FooterItemDTO, FooterItem>()
+                    .ForMember(dest => dest.Titre, opt => opt.MapFrom(src => src.Titre))
+                    .ForMember(dest => dest.LinkNextForm, opt => opt.MapFrom(src => src.LinkNextForm));
+
+              
+                CreateMap<FooterItem, FooterItemDTO>()
+                    .ForMember(dest => dest.Titre, opt => opt.MapFrom(src => src.Titre))
+                    .ForMember(dest => dest.LinkNextForm, opt => opt.MapFrom(src => src.LinkNextForm));
+       
+
+
     }
+}
 }

@@ -7,8 +7,8 @@ using Domaine.Reposotires;
 using FluentResults;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
-using Google.Apis.Sheets.v4.Data;
 using Google.Apis.Sheets.v4;
+using Google.Apis.Sheets.v4.Data;
 using Infrastructure.Cloudery;
 using MediatR;
 using Microsoft.Extensions.Options;
@@ -16,7 +16,7 @@ using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Application.formulaire.Handlers.Commands
@@ -74,31 +74,50 @@ namespace Application.formulaire.Handlers.Commands
                     return EroorsHandler.HandleGenericError<string>("Formulaire not found.");
                 }
 
-                var formulaireDTO = _mapper.Map<FormulaireDTO>(request.Formulaire);
+                // Handle respenseText for socle images and socle videos in Formulaire Body
+                foreach (var bodyItem in request.Formulaire.Body)
+                {
+                    if ((bodyItem.Type == "image" || bodyItem.Type == "video") && !string.IsNullOrEmpty(bodyItem.RespenseText))
+                    {
+                        bodyItem.RespenseText = await ProcessContent(bodyItem.RespenseText);
+                    }
+                }
 
-                // Update Google Sheets file with the titles from the Body field
-                var spreadsheetId = request.ExcelFileLink; // Assuming this is the correct Spreadsheet ID
-                var range = "Feuille 1!A1:Z1"; // Writing headers in the first row
-                await UpdateGoogleSheetHeaders(spreadsheetId, range, request.Formulaire.Body.Select(b => b.Titre).ToList(), cancellationToken);
+                // Check and upload Logo
+                var logoUrl = await ProcessContent(request.Logo);
 
-                // Upload images to Cloudinary
+                // Check and upload ProductImages
+                var productImagesUrls = new List<string>();
+                foreach (var image in request.ProductImages)
+                {
+                    var imageUrl = await ProcessContent(image);
+                    productImagesUrls.Add(imageUrl);
+                }
+
                 var designDTO = new DesignDTO
                 {
                     BackgroundColor = request.BackgroundColor,
-                    Logo = await _cloudinaryService.UploadBase64ImageAsync(request.Logo)
+                    Logo = logoUrl,
+                    ProductImages = productImagesUrls
                 };
 
-                var productImages = new List<string>();
-                foreach (var image in request.ProductImages)
-                {
-                    var imageUrl = await _cloudinaryService.UploadBase64ImageAsync(image);
-                    productImages.Add(imageUrl);
-                }
-                designDTO.ProductImages = productImages;
-
+                var formulaireDTO = _mapper.Map<FormulaireDTO>(request.Formulaire);
                 existingFormulaire.Formulaire = formulaireDTO;
                 existingFormulaire.ExcelFileLink = request.ExcelFileLink;
+                existingFormulaire.CodeBoard = request.CodeBoard;
                 existingFormulaire.Design = designDTO;
+
+                // Update Google Sheets with new headers for socle image or socle video
+                var spreadsheetId = request.ExcelFileLink; // Assuming this is the correct Spreadsheet ID
+                var range = "Feuille 1!A1:Z1"; // Writing headers in the first row
+
+                // Filter headers for socle image and socle video
+                var filteredHeaders = request.Formulaire.Body
+                    .Where(b => b.Type == "socle image" || b.Type == "socle video" ||b.Type=="text")
+                    .Select(b => b.Titre)
+                    .ToList();
+
+                await UpdateGoogleSheetHeaders(spreadsheetId, range, filteredHeaders, cancellationToken);
 
                 var result = await _repositoryFormulaire.UpdateFormulaireAsync(existingFormulaire, cancellationToken);
 
@@ -117,6 +136,22 @@ namespace Application.formulaire.Handlers.Commands
             }
         }
 
+        private async Task<string> ProcessContent(string content)
+        {
+            if (IsCloudinaryUrl(content))
+            {
+                return content;
+            }
+
+            return await _cloudinaryService.UploadBase64ImageAsync(content);
+        }
+
+        private bool IsCloudinaryUrl(string input)
+        {
+            return input.StartsWith("http://res.cloudinary.com") ||
+                   input.StartsWith("https://res.cloudinary.com");
+        }
+
         private async Task UpdateGoogleSheetHeaders(string spreadsheetId, string range, List<string> newHeaders, CancellationToken cancellationToken)
         {
             // Clear existing headers in the specified range
@@ -133,5 +168,5 @@ namespace Application.formulaire.Handlers.Commands
             updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
             await updateRequest.ExecuteAsync(cancellationToken);
         }
-        }
     }
+}

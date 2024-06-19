@@ -15,6 +15,7 @@ namespace Domaine.Entities
         public ObjectId SiteWebId { get; set; }
         public FormulaireDTO Formulaire { get; set; }
         public string ExcelFileLink { get; set; }
+        public string? CodeBoard { get; set; }// Add this line
         public DesignDTO Design { get; set; }
     }
 
@@ -22,8 +23,9 @@ namespace Domaine.Entities
     {
         public HeadDTO Head { get; set; }
         public List<BodyItemDTO> Body { get; set; } = new List<BodyItemDTO>();
-        public FooterDTO Footer { get; set; }
+        public List<FooterItemDTO> Footer { get; set; } = new List<FooterItemDTO>();
     }
+
 
     public class HeadDTO
             {
@@ -38,10 +40,15 @@ namespace Domaine.Entities
         public bool Required { get; set; } = false;
     }
 
-    public class FooterDTO
+   
+
+    public class FooterItemDTO
     {
-        public string Titre { get; set; } = string.Empty;
+        public string Titre { get; set; }
+        public string LinkNextForm { get; set; }
     }
+
+
     public class DesignDTO
     {
         public List<string> ProductImages { get; set; }

@@ -86,7 +86,15 @@ namespace Infrastructure.Repositories
         public async Task<List<FormulaireObjectDTO>> GetFormsBySiteWebIdAsync(ObjectId siteWebId, CancellationToken cancellationToken)
         {
             var filter = Builders<FormulaireObjectDTO>.Filter.Eq(f => f.SiteWebId, siteWebId);
-            return await _formulaireCollection.Find(filter).ToListAsync(cancellationToken);
+            return await _formulaireCollection.Find(filter)
+                .Project<FormulaireObjectDTO>(Builders<FormulaireObjectDTO>.Projection
+                    .Include(f => f._id) // Ensure `_id` is included
+                    .Include(f => f.SiteWebId)
+                    .Include(f => f.Formulaire)
+                    .Include(f => f.ExcelFileLink)
+                     .Include(f => f.CodeBoard)
+                    .Include(f => f.Design))
+                .ToListAsync(cancellationToken);
         }
         public async Task<Result> UpdateFormulaireAsync(FormulaireObjectDTO formulaire, CancellationToken cancellationToken)
         {

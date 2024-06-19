@@ -14,6 +14,7 @@ namespace Domaine.Entities
         //public ObjectId FormId { get; set; } // Added to uniquely identify the form being submitted
         //public ObjectId UserId { get; set; } // To track the submitting user
         public string? ExcelFileLink { get; set; }
+        public string? CodeBoard { get; set; }
         public FormulaireSubmitedDTO? Formulaire { get; set; }
     }
 
